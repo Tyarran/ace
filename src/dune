@@ -1,5 +1,12 @@
 (library
  (name Ace)
  (public_name ace)
- (modules (:standard))
- (libraries base re lwt lwt.unix pastel.lib console.lib re2 cohttp-lwt-unix yojson ace.core ace.renderers))
+ (modules (:standard \ Cli))
+ (libraries base stdio re lwt lwt.unix re2 cohttp-lwt-unix yojson ace.ext yaml))
+
+(executable
+ (name Cli)
+ (public_name ace)
+ (modes byte byte_complete)
+ (libraries base cmdliner ace.shell ace.web))
+

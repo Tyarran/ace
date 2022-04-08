@@ -1,0 +1,6 @@
+(include_subdirs unqualified)
+
+(library
+  (name Slack)
+  (public_name ace.ext.slack)
+  (libraries yojson base))
