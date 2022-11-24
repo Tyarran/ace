@@ -70,12 +70,11 @@ let render_shell = (context: Context.t, response) => {
       [context.config.bot.name, "you", "debug"],
     );
   <terminal>
-
-      <chat_line user=botname color=Blue>
-        <text> {"Action: " ++ context.action.name} </text>
-        <text> "result: " </text>
-        <text> response </text>
-      </chat_line>
-    </terminal>;
-    /* <debug_info context response /> */
+    <debug_info context response />
+    <chat_line user=botname color=Blue>
+      <text> {"Action: " ++ context.action.name} </text>
+      <text> "result: " </text>
+      <text> response </text>
+    </chat_line>
+  </terminal>;
 };
