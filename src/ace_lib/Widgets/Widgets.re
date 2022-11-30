@@ -6,18 +6,12 @@ type widget =
   | Command_result(Context.t, string);
 
 module type Renderable = {
-  type response;
-
-  let render_shell: (Context.t, response) => string;
+  let render_shell: (Context.t, string) => Types.widget_result;
 };
 
 module Renderer = (Widget: Renderable) => {
   let render =
-      (
-        context: Context.t,
-        response: Widget.response,
-        destination: Types.Service.t,
-      ) => {
+      (context: Context.t, response: string, destination: Types.Service.t) => {
     Types.Service.(
       switch (destination) {
       | Shell => Widget.render_shell(context, response)

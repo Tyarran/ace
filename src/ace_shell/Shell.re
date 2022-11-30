@@ -2,7 +2,9 @@ open Ace_lib.Types;
 open Ace_lib;
 open Base;
 open Cohttp;
+open Interface;
 open Lwt;
+open Ministel;
 open React;
 open Stdio;
 
@@ -79,32 +81,27 @@ let execute_system_command = command_name =>
     }
   );
 
-/* let handle_input = (raw_input, config: Config.t) => { */
-/*   let input = In.Shell(raw_input); */
-/*   let thread_res = */
-/*     Processor.get_thread( */
-/*       config, */
-/*       input, */
-/*       ~default=(config.default_action, No_event), */
-/*     ); */
-/*  */
-/*   switch (thread_res) { */
-/*   | Ok(thread) => */
-/*     let _ = execute(thread); */
-/*     Lwt_result.return(); */
-/*   | Error(error) => Lwt_result.return() */
-/*   }; */
-/* }; */
-
 let execute = thread => {
-  /* let io_writer = Lwt_io.write_line(Lwt_io.stdout); */
   Lwt.(
     thread
     >>= (
       res =>
         switch (res) {
         | Ok(response) =>
-          Widgets.render(response, Types.Service.Shell) |> Lwt_result.return
+          let chat_line_data = Widgets.render(response, Types.Service.Shell);
+          switch (chat_line_data) {
+          | ChatLine(context, username, lines) =>
+            /* let resp = */
+            /*   List.fold(lines, ~init="", ~f=(acc, line) => { */
+            /*     acc ++ "\n" ++ line */
+            /*   }); */
+            <terminal>
+              <debug_info context response=lines />
+              <chat_line color=Blue user=username> ...lines </chat_line>
+            </terminal>
+            |> Lwt_result.return
+          | _ => Lwt_result.return("")
+          };
         | Error(error: shell_error) => Lwt_result.fail(error)
         }
     )

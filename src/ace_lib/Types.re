@@ -205,3 +205,7 @@ module Context = {
     event: Event.t,
   };
 };
+
+type widget_result =
+  | String(Context.t, string)
+  | ChatLine(Context.t, string, list(string));

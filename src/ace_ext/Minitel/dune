@@ -1,0 +1,4 @@
+(library
+  (name Minitel)
+  (public_name ace.ext.minitel)
+  (libraries base ANSITerminal))
