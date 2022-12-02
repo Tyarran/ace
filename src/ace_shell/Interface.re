@@ -1,6 +1,6 @@
 open Ace_lib.Types;
 open Base;
-open Ministel;
+open Minitel;
 
 let wrap_markup = (value, markup, _start, _end) => {
   LTerm.(
@@ -92,15 +92,16 @@ module Style = {
 let print = msg => Stdio.Out_channel.output_string(Stdio.stdout, msg);
 let flush = () => Stdio.Out_channel.flush(Stdio.stdout);
 
+let line = (~children=[], ()) => {
+  children |> String.concat(~sep="") |> (++)("\r\n");
+};
+
 let welcome = (config: Config.t) => {
-  <terminal>
-    <line>
-      <text> "Welcome to the " </text>
-      <text color=Green> "ace shell " </text>
-      <text color=Red> {"(v" ++ config.version ++ ")"} </text>
-    </line>
-    <br />
-  </terminal>;
+  <minitel>
+    "Welcome to the "
+    <minitel color=Green> "ace shell " </minitel>
+    <minitel color=Green> {"(v" ++ config.version ++ ")"} </minitel>
+  </minitel>;
 };
 
 let space = name =>
@@ -125,32 +126,34 @@ let expand_name = (name, name_list) => {
 
 let message = (~value, arrow_color, step_color, value_color, step_text) => {
   let text_ = Poly.(value != None) ? step_text ++ ": " : step_text;
-  <terminal>
-    <line>
-      <text color=arrow_color> "=> " </text>
-      <text color=step_color> text_ </text>
-      <text color=value_color> {Option.value(value, ~default="")} </text>
-    </line>
-  </terminal>;
+  <line>
+    <minitel color=arrow_color> "=> " </minitel>
+    <minitel color=step_color> text_ </minitel>
+    <minitel color=value_color> {Option.value(value, ~default="")} </minitel>
+  </line>;
+};
+
+let line_with_space = (~color, ~user, ~children=[], ()) => {
+  let space = space(user);
+  children
+  |> List.map(~f=child => <minitel color> {space ++ child} </minitel>)
+  |> String.concat;
 };
 
 let chat_line = (~color, ~user, ~children=[], ()) => {
   let (first, other_lines) =
     switch (children) {
     | [] => ("", "")
-    | [child] => (<text> child </text>, "")
-    | [first, ...rest] =>
-      let space = space(user);
-      let other_lines =
-        rest
-        |> List.map(~f=child => <line> {space ++ child} </line>)
-        |> String.concat;
-      (<text> first </text>, other_lines);
+    | [child] => (<minitel color> child </minitel>, "")
+    | [first, ...rest] => (
+        <minitel color> first </minitel>,
+        <line_with_space color user> ...rest </line_with_space>,
+      )
     };
-  <line>
-    <line> <text color> {user ++ " > "} </text> <text> first </text> </line>
+  <minitel>
+    <minitel color> {user ++ " > " ++ first} </minitel>
     other_lines
-  </line>;
+  </minitel>;
 };
 
 let debug = (~step, ~value, ~children, ~user, ()) => {
@@ -162,25 +165,21 @@ let debug_info = (~context: Context.t, ~response, ~children=[], ()) =>
   if (context.config.bot.debug) {
     let user =
       expand_name("debug", [context.config.bot.name, "debug", "you"]);
-    <line>
-      <chat_line user color=Yellow>
-        <text color=Yellow> {"botname: " ++ context.config.bot.name} </text>
-        <text color=Yellow> {"input: " ++ In.get_text(context.input)} </text>
-        <text color=Yellow>
-          {"origin: " ++ In.get_service_name(context.input)}
-        </text>
-        <text color=Yellow> {"action: " ++ context.action.name} </text>
-        <text color=Yellow>
-          {"event: " ++ Event.to_string(context.event)}
-        </text>
-        <text color=Yellow>
+    <chat_line user color=Yellow>
+      <minitel color=Yellow>
+        <line> {"botname: " ++ context.config.bot.name} </line>
+        <line> {"input: " ++ In.get_text(context.input)} </line>
+        <line> {"origin: " ++ In.get_service_name(context.input)} </line>
+        <line> {"action: " ++ context.action.name} </line>
+        <line> {"event: " ++ Event.to_string(context.event)} </line>
+        <line>
           {"runner: " ++ Action.Runner.to_string(context.action.runner)}
-        </text>
-        <text color=Yellow> "destination: shell" </text>
-        <text color=Yellow> "response :" </text>
-        <text color=Yellow> ...response </text>
-      </chat_line>
-    </line>;
+        </line>
+        <line> "destination: shell" </line>
+        <line> "response :" </line>
+        <line> {String.concat(response, ~sep="")} </line>
+      </minitel>
+    </chat_line>;
   } else {
     "";
   };

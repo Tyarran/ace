@@ -4,7 +4,7 @@ open Base;
 open Cohttp;
 open Interface;
 open Lwt;
-open Ministel;
+open Minitel;
 open React;
 open Stdio;
 
@@ -18,6 +18,7 @@ type shell_error =
   | ProcessingError(Processor.processing_error);
 
 exception SystemCommandFail(int);
+exception CommandFail(Processor.processing_error);
 
 let shell_commands = [|"exit", "quit", "clear"|];
 
@@ -91,14 +92,10 @@ let execute = thread => {
           let chat_line_data = Widgets.render(response, Types.Service.Shell);
           switch (chat_line_data) {
           | ChatLine(context, username, lines) =>
-            /* let resp = */
-            /*   List.fold(lines, ~init="", ~f=(acc, line) => { */
-            /*     acc ++ "\n" ++ line */
-            /*   }); */
-            <terminal>
+            <minitel>
               <debug_info context response=lines />
               <chat_line color=Blue user=username> ...lines </chat_line>
-            </terminal>
+            </minitel>
             |> Lwt_result.return
           | _ => Lwt_result.return("")
           };
@@ -123,8 +120,6 @@ let print_result = res => {
   | Error(error) => Lwt_io.write_line(Lwt_io.stderr, "Error")
   };
 };
-
-exception CommandFail(Processor.processing_error);
 
 let handle_input = (history, config, term_input) => {
   LTerm_history.add(history, term_input);
