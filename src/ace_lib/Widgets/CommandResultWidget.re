@@ -1,4 +1,3 @@
-open Ministel;
 open Types;
 open Base;
 

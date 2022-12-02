@@ -1,4 +1,0 @@
-(library
-  (name Ministel)
-  (public_name ace.ext.ministel)
-  (libraries base ANSITerminal))

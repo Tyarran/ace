@@ -97,11 +97,8 @@ let line = (~children=[], ()) => {
 };
 
 let welcome = (config: Config.t) => {
-  <minitel>
-    "Welcome to the "
-    <minitel color=Green> "ace shell " </minitel>
-    <minitel color=Green> {"(v" ++ config.version ++ ")"} </minitel>
-  </minitel>;
+  "Welcome to the "
+  ++ <minitel fg=Green> "ace shell " {"(v" ++ config.version ++ ")"} </minitel>;
 };
 
 let space = name =>
@@ -127,16 +124,52 @@ let expand_name = (name, name_list) => {
 let message = (~value, arrow_color, step_color, value_color, step_text) => {
   let text_ = Poly.(value != None) ? step_text ++ ": " : step_text;
   <line>
-    <minitel color=arrow_color> "=> " </minitel>
-    <minitel color=step_color> text_ </minitel>
-    <minitel color=value_color> {Option.value(value, ~default="")} </minitel>
+    <minitel fg=arrow_color> "=> " </minitel>
+    <minitel fg=step_color> text_ </minitel>
+    <minitel fg=value_color> {Option.value(value, ~default="")} </minitel>
   </line>;
+};
+
+module Message = {
+  type message_type =
+    | Error
+    | Warning
+    | Success;
+
+  let message = (type_, text, value) => {
+    let color =
+      switch (type_) {
+      | Success => Green
+      | Error => Red
+      | Warning => Yellow
+      };
+
+    let formated_value =
+      switch (value) {
+      | "" => ""
+      | _other_string =>
+        <minitel>
+          <minitel fg=White> ": " </minitel>
+          <minitel fg=color> value </minitel>
+        </minitel>
+      };
+
+    <line>
+      <minitel fg=color> "=> " </minitel>
+      <minitel fg=White> text </minitel>
+      formated_value
+    </line>;
+  };
+
+  let success = message(Success);
+  let error = message(Error);
+  let warning = message(Warning);
 };
 
 let line_with_space = (~color, ~user, ~children=[], ()) => {
   let space = space(user);
   children
-  |> List.map(~f=child => <minitel color> {space ++ child} </minitel>)
+  |> List.map(~f=child => <minitel fg=color> {space ++ child} </minitel>)
   |> String.concat;
 };
 
@@ -144,14 +177,14 @@ let chat_line = (~color, ~user, ~children=[], ()) => {
   let (first, other_lines) =
     switch (children) {
     | [] => ("", "")
-    | [child] => (<minitel color> child </minitel>, "")
+    | [child] => (<minitel fg=color> child </minitel>, "")
     | [first, ...rest] => (
-        <minitel color> first </minitel>,
+        <minitel fg=color> first </minitel>,
         <line_with_space color user> ...rest </line_with_space>,
       )
     };
   <minitel>
-    <minitel color> {user ++ " > " ++ first} </minitel>
+    <minitel fg=color> {user ++ " > " ++ first} </minitel>
     other_lines
   </minitel>;
 };
@@ -161,28 +194,26 @@ let debug = (~step, ~value, ~children, ~user, ()) => {
   <chat_line user color=Yellow> message </chat_line>;
 };
 
-let debug_info = (~context: Context.t, ~response, ~children=[], ()) =>
-  if (context.config.bot.debug) {
-    let user =
-      expand_name("debug", [context.config.bot.name, "debug", "you"]);
-    <chat_line user color=Yellow>
-      <minitel color=Yellow>
-        <line> {"botname: " ++ context.config.bot.name} </line>
-        <line> {"input: " ++ In.get_text(context.input)} </line>
-        <line> {"origin: " ++ In.get_service_name(context.input)} </line>
-        <line> {"action: " ++ context.action.name} </line>
-        <line> {"event: " ++ Event.to_string(context.event)} </line>
-        <line>
-          {"runner: " ++ Action.Runner.to_string(context.action.runner)}
-        </line>
-        <line> "destination: shell" </line>
-        <line> "response :" </line>
-        <line> {String.concat(response, ~sep="")} </line>
-      </minitel>
-    </chat_line>;
-  } else {
-    "";
-  };
+let debug_info = (context: Context.t) => {
+  let _ =
+    Lwt.(
+      [
+        Message.warning("botname", context.config.bot.name),
+        Message.warning("input", In.get_text(context.input)),
+        Message.warning("origin", In.get_service_name(context.input)),
+        Message.warning("action", context.action.name),
+        Message.warning("event", Event.to_string(context.event)),
+        Message.warning(
+          "runner",
+          Action.Runner.to_string(context.action.runner),
+        ),
+        Message.warning("destination", "shell"),
+      ]
+      |> String.concat(~sep="")
+      |> Lwt_io.write(Lwt_io.stdout)
+    );
+  ();
+};
 
 let success = (~value=?, step_text) =>
   message(~value, Green, Green, Green, step_text);

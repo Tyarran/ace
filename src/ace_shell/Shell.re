@@ -92,11 +92,11 @@ let execute = thread => {
           let chat_line_data = Widgets.render(response, Types.Service.Shell);
           switch (chat_line_data) {
           | ChatLine(context, username, lines) =>
+            Interface.debug_info(context);
             <minitel>
-              <debug_info context response=lines />
               <chat_line color=Blue user=username> ...lines </chat_line>
             </minitel>
-            |> Lwt_result.return
+            |> Lwt_result.return;
           | _ => Lwt_result.return("")
           };
         | Error(error: shell_error) => Lwt_result.fail(error)
@@ -189,21 +189,17 @@ let start_shell = config => {
 };
 
 let run = () => {
-  "Start Ace shell" |> Interface.success(~value="OK") |> Interface.print;
-  "load configuration"
-  |> Interface.success(~value="config.yaml")
-  |> Interface.print;
+  Message.success("Start Ace Shell", "") |> Interface.print;
+
+  Message.success("Load configuration", "config.yaml") |> Interface.print;
   switch (ConfigParser.read_config_file_sync("config.yaml")) {
   | Ok(config) =>
-    "started bot"
-    |> Interface.success(~value=config.bot.name)
-    |> Interface.print;
+    Message.success("Started bot", config.bot.name) |> Interface.print;
     Interface.flush();
     start_shell(config);
   | Error(msg) =>
-    "Unable to read the config file"
-    |> Interface.error(~value=msg)
-    |> Interface.print;
-    Interface.flush();
+    Message.error("Unable to read the config file", "") |> Interface.print
   };
+  Interface.print("\r\n");
+  Interface.flush();
 };

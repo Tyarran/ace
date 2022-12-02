@@ -1,4 +1,4 @@
 (library
   (name Ext)
   (public_name ace.ext)
-  (libraries ace.ext.minitel ace.ext.ministel ace.ext.slack ace.ext.interpol ace.ext.dotenv))
+  (libraries ace.ext.minitel ace.ext.slack ace.ext.interpol ace.ext.dotenv))
