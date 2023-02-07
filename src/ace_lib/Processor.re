@@ -19,7 +19,7 @@ type message_kind =
 let command_regex = Re2.create_exn("^\\!(?P<command>\\w+)\\ *(?P<args>.*)$");
 
 let filter_empty_string = string_list =>
-  List.filter(string_list, ~f=item => String.compare(item, "") != 0);
+  List.filter(string_list, ~f=item => Poly.(item != ""));
 
 let parse_command = text => {
   switch (find_submatches_exn(command_regex, text)) {

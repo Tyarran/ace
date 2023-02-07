@@ -89,57 +89,57 @@ let minitel =
 /*   ANSITerminal.sprintf(styles, "%s", txt); */
 /* }; */
 
-module StringBackend = {
-  type t = string;
-  let of_color = color => {
-    switch (color) {
-    | Black => ANSITerminal.Black
-    | Red => ANSITerminal.Red
-    | Green => ANSITerminal.Green
-    | Yellow => ANSITerminal.Yellow
-    | Blue => ANSITerminal.Blue
-    | Magenta => ANSITerminal.Magenta
-    | Cyan => ANSITerminal.Cyan
-    | White => ANSITerminal.White
-    | Default => ANSITerminal.Default
-    };
-  };
-
-  let of_style = style =>
-    switch (style) {
-    | Bold => ANSITerminal.Bold
-    | Underlined => ANSITerminal.Underlined
-    | Blink => ANSITerminal.Blink
-    | Inverse => ANSITerminal.Inverse
-    | Reset => ANSITerminal.Reset
-    | Hidden => ANSITerminal.Hidden
-    | Foreground(color) => ANSITerminal.Foreground(of_color(color))
-    | Background(color) => ANSITerminal.Background(of_color(color))
-    };
-
-  /* let rec render_children = children: list(t) => { */
-  /*   switch (children) { */
-  /*   | [Text(txt)] => txt */
-  /*   | Style => render_children(children) */
-  /*   }; */
-  /* }; */
-  let rec render_children = children => {
-    children
-    |> List.map(~f=child => {
-         switch (child) {
-         | Text(txt) => txt
-         | Style(children, styles) =>
-           ANSITerminal.sprintf( List.map(~f=of_style, styles), "%s", render_children(children),
-           )
-         }
-       })
-  }
-
-  let render = styled => {
-    switch (styled) {
-    | Text(txt) => txt
-    | Style(children, styles) => render_children(children) |> String.concat(~sep="")
-    };
-  };
-  };
-};
+/* module StringBackend = { */
+/*   type t = string; */
+/*   let of_color = color => { */
+/*     switch (color) { */
+/*     | Black => ANSITerminal.Black */
+/*     | Red => ANSITerminal.Red */
+/*     | Green => ANSITerminal.Green */
+/*     | Yellow => ANSITerminal.Yellow */
+/*     | Blue => ANSITerminal.Blue */
+/*     | Magenta => ANSITerminal.Magenta */
+/*     | Cyan => ANSITerminal.Cyan */
+/*     | White => ANSITerminal.White */
+/*     | Default => ANSITerminal.Default */
+/*     }; */
+/*   }; */
+/*  */
+/*   let of_style = style => */
+/*     switch (style) { */
+/*     | Bold => ANSITerminal.Bold */
+/*     | Underlined => ANSITerminal.Underlined */
+/*     | Blink => ANSITerminal.Blink */
+/*     | Inverse => ANSITerminal.Inverse */
+/*     | Reset => ANSITerminal.Reset */
+/*     | Hidden => ANSITerminal.Hidden */
+/*     | Foreground(color) => ANSITerminal.Foreground(of_color(color)) */
+/*     | Background(color) => ANSITerminal.Background(of_color(color)) */
+/*     }; */
+/*  */
+/*   /* let rec render_children = children: list(t) => { */ */
+/*   /*   switch (children) { */ */
+/*   /*   | [Text(txt)] => txt */ */
+/*   /*   | Style => render_children(children) */ */
+/*   /*   }; */ */
+/*   /* }; */ */
+/*   let rec render_children = children => { */
+/*     children */
+/*     |> List.map(~f=child => { */
+/*          switch (child) { */
+/*          | Text(txt) => txt */
+/*          | Style(children, styles) => */
+/*            ANSITerminal.sprintf( List.map(~f=of_style, styles), "%s", render_children(children), */
+/*            ) */
+/*          } */
+/*        }) */
+/*   } */
+/*  */
+/*   let render = styled => { */
+/*     switch (styled) { */
+/*     | Text(txt) => txt */
+/*     | Style(children, styles) => render_children(children) |> String.concat(~sep="") */
+/*     }; */
+/*   }; */
+/*   }; */
+/* }; */

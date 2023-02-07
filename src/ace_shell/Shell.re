@@ -190,12 +190,12 @@
 open Minitel;
 
 let run = () => {
-  let res =
+  let _ =
     <minitel fg=Green>
       {Minitel.string("green text")}
       <minitel fg=Red b=true> {Minitel.string("text")} </minitel>
     </minitel>;
-  Stdio.print_endline(res |> Minitel.StringBackend.render);
+  Stdio.print_endline("testlkdsjfalskdjfsla;dkfjsd;lkfjsd;flksjdfl;ksajfsdl;kafj");
 };
 
 /* let run = () => { */
