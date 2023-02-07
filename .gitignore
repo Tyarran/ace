@@ -1,6 +1,5 @@
-_esy
-node_modules
-ace.install
+.env
+.gitignore
 _build
-__pycache__
 _opam
+ace.install
