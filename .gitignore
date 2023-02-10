@@ -3,3 +3,4 @@
 _build
 _opam
 ace.install
+.ocamlformat

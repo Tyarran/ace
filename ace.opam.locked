@@ -4,9 +4,9 @@ version: "952c1d7"
 synopsis: "Ace : Another chatbot engine"
 description: "Ace : Another chatbot engine"
 authors: "Romain Commandé"
-tags: ["topics" "to describe" "your" "project"]
 depends: [
   "ANSITerminal" {= "0.8.5"}
+  "alcotest" {= "1.5.0"}
   "angstrom" {= "0.15.0"}
   "asn1-combinators" {= "0.2.6"}
   "astring" {= "0.8.5"}

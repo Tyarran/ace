@@ -1,0 +1,4 @@
+
+(tests
+  (names test_processor)
+  (libraries ace alcotest))
