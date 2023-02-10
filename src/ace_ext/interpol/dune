@@ -1,4 +1,0 @@
-(library
-  (name Interpol)
-  (public_name ace.ext.interpol)
-  (libraries base re2))
