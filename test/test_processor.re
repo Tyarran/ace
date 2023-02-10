@@ -41,9 +41,9 @@ let test_process_message_invalid_command = () => {
   let actual = To_test.process_message(message);
 
   switch (actual) {
-  | Ok(Command(_, _)) => failwith("should not be a command")
   | Error(Processor.InvalidCommand(message)) =>
     check(string, "should be the message", "ping one two three", message)
+  | _ => failwith("should not be an error")
   };
 };
 
@@ -52,9 +52,9 @@ let test_process_message_empty_command = () => {
   let actual = To_test.process_message(message);
 
   switch (actual) {
-  | Ok(Command(_, _)) => failwith("should not be a command")
   | Error(Processor.InvalidCommand(message)) =>
     check(string, "should be the message", "", message)
+  | _ => failwith("should not be an error")
   };
 };
 
@@ -63,10 +63,29 @@ let test_process_message_double_exclamation = () => {
   let actual = To_test.process_message(message);
 
   switch (actual) {
-  | Ok(Command(_, _)) => failwith("should not be a command")
-  | Error(Processor.InvalidCommand(message)) =>
-    check(string, "should be the message", "!!ping", message)
+  | Error(Processor.InvalidCommandName(message)) =>
+    check(string, "should be the message", "!ping", message)
+  | _ => failwith("should not be an error")
   };
+  Stdio.Out_channel.flush(Stdio.stdout);
+};
+
+let test_process_message_double_quoted_argument = () => {
+  let message = Message.make("!ping \"quoted argument\"", Origin.Shell);
+  let actual = To_test.process_message(message);
+
+  switch (actual) {
+  | Ok(Command(name, args)) =>
+    check(string, "should be ping", "ping", name);
+    check(
+      list(string),
+      "should contains one argument",
+      ["quoted argument"],
+      args,
+    );
+  | _ => failwith("should not be an error")
+  };
+  Stdio.Out_channel.flush(Stdio.stdout);
 };
 
 let () =
@@ -92,6 +111,11 @@ let () =
             "with invalid command name (double \"!\")",
             `Quick,
             test_process_message_double_exclamation,
+          ),
+          test_case(
+            "with double quoted argument",
+            `Quick,
+            test_process_message_double_quoted_argument,
           ),
         ],
       ),
