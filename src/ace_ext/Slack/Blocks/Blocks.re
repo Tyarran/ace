@@ -5,14 +5,14 @@ let section =
   let accessory =
     switch (children) {
     | [] => None
-    | [first, ...rest] => Some(first)
+    | [first, ..._rest] => Some(first)
     };
   let section =
     LayoutBlock.Section.{type_, text, emoji, block_id, fields, accessory};
   LayoutBlock.Section(section);
 };
 
-let button = (~type_, ~text, ~emoji=?, ~value, ~action_id, ~children=[], ()) => {
+let button = (~type_, ~text, ~emoji=?, ~value, ~action_id, ~_children=[], ()) => {
   let button =
     BlockElement.Button.{
       text: CompositionObject.Text.{type_, text, emoji, verbatim: None},
@@ -37,7 +37,7 @@ let response = (~attachments=?, blocks) => {
   Yojson.Basic.to_string(json);
 };
 
-let text = (~type_, ~emoji=?, ~verbatim=?, ~children=[], ()) => {
+let text = (~type_, ~_emoji=?, ~_verbatim=?, ~children=[], ()) => {
   let text = String.concat(~sep="\n", children);
   let text_element =
     CompositionObject.Text.{type_, text, emoji: None, verbatim: None};

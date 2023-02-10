@@ -4,7 +4,6 @@ version: "952c1d7"
 synopsis: "Ace : Another chatbot engine"
 description: "Ace : Another chatbot engine"
 authors: ["Romain Commandé"]
-tags: ["topics" "to describe" "your" "project"]
 depends: [
   "dune" {>= "3.6"}
   "ANSITerminal"

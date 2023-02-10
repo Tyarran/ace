@@ -3,15 +3,11 @@ open Base;
 open Minitel;
 
 let wrap_markup = (value, markup, _start, _end) => {
-  LTerm.(
-    LTerm_text.(
-      switch (value) {
-      | None => markup
-      | Some(value) =>
-        List.append(List.append([_start(value)], markup), [_end])
-      }
-    )
-  );
+  switch (value) {
+  | None => markup
+  | Some(value) =>
+    List.append(List.append([_start(value)], markup), [_end])
+  };
 };
 
 let fg = (color, markup) =>
@@ -189,29 +185,27 @@ let chat_line = (~color, ~user, ~children=[], ()) => {
   </minitel>;
 };
 
-let debug = (~step, ~value, ~children, ~user, ()) => {
+let _debug = (~step, ~value, ~_children, ~user, ()) => {
   let message = message(~value, Yellow, Yellow, Yellow, step);
   <chat_line user color=Yellow> message </chat_line>;
 };
 
 let debug_info = (context: Context.t) => {
   let _ =
-    Lwt.(
-      [
-        Message.warning("botname", context.config.bot.name),
-        Message.warning("input", In.get_text(context.input)),
-        Message.warning("origin", In.get_service_name(context.input)),
-        Message.warning("action", context.action.name),
-        Message.warning("event", Event.to_string(context.event)),
-        Message.warning(
-          "runner",
-          Action.Runner.to_string(context.action.runner),
-        ),
-        Message.warning("destination", "shell"),
-      ]
-      |> String.concat(~sep="")
-      |> Lwt_io.write(Lwt_io.stdout)
-    );
+    [
+      Message.warning("botname", context.config.bot.name),
+      Message.warning("input", In.get_text(context.input)),
+      Message.warning("origin", In.get_service_name(context.input)),
+      Message.warning("action", context.action.name),
+      Message.warning("event", Event.to_string(context.event)),
+      Message.warning(
+        "runner",
+        Action.Runner.to_string(context.action.runner),
+      ),
+      Message.warning("destination", "shell"),
+    ]
+    |> String.concat(~sep="")
+    |> Lwt_io.write(Lwt_io.stdout);
   ();
 };
 
@@ -224,7 +218,7 @@ let error = (~value=?, step_text) =>
 let debug = (~value, step_text) =>
   message(Yellow, White, Yellow, step_text, ~value);
 
-let prompt = line_number => {
+let prompt = _line_number => {
   let name = expand_name("you", ["you", "Jean Tibote", "debug"]);
   /* let formated_line_number = Int.to_string(line_number); */
   let markup =

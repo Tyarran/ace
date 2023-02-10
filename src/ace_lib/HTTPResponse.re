@@ -1,5 +1,4 @@
 open Base;
-open Cohttp_lwt_unix;
 open Lwt;
 open Yojson.Basic;
 open Yojson;
@@ -78,7 +77,6 @@ let build_response = res => {
 };
 
 let read_body = body => {
-  open Response;
   let json = Basic.from_string(body);
   switch (decode_result(json)) {
   | item => build_response(item)
@@ -98,7 +96,8 @@ let handle_response = (allowed, (resp, body)) => {
     };
 };
 
-let execute_http_request = (context, url, method, allowed, params, headers) => {
+let execute_http_request =
+    (context, _url, _method, _allowed, _params, _headers) => {
   /* let uri = Uri.of_string(url ++ build_params(params)); */
   /* Lwt.catch( */
   /*   () => Client.call(method, uri, ~headers) >>= handle_response(allowed), */

@@ -61,7 +61,9 @@ module Decoder = {
     switch (yaml) {
     | `O(values) =>
       let res =
-        List.find(values, ~f=((k, value)) => Poly.(k == key) ? true : false);
+        List.find(values, ~f=((k, _value)) =>
+          Poly.(k == key) ? true : false
+        );
       switch (res) {
       | Some((_, value)) => value
       | None =>
@@ -87,7 +89,7 @@ let origin = (path, yaml) => {
 
 let event = (path, yaml: value) => {
   switch (yaml) {
-  | `O(events) =>
+  | `O(_events) =>
     open Decoder;
     let _type =
       yaml
@@ -156,7 +158,7 @@ let http_response = (path, yaml: value) => {
 let runner = (path, yaml: value) => {
   Decoder.(
     switch (yaml) {
-    | `O(runner) =>
+    | `O(_runner) =>
       let _type = yaml |> member("type") |> string(path ++ ".type");
       switch (_type) {
       | "internal" => yaml |> internal(path ++ ".internal")
@@ -195,10 +197,8 @@ let slack = (path, yaml: value) => {
   | `O(_) =>
     Types.Config.{
       oauth_token:
-        Types.Config.(
-          Decoder.(
-            yaml |> member("oauth_token") |> string(path ++ ".oauth_token")
-          )
+        Decoder.(
+          yaml |> member("oauth_token") |> string(path ++ ".oauth_token")
         ),
     }
   | _ => raise(Config_error("Slack configuration must be an object"))
@@ -207,7 +207,7 @@ let slack = (path, yaml: value) => {
 
 let bot = (path, yaml: value) => {
   switch (yaml) {
-  | `O(bot) =>
+  | `O(_bot) =>
     Decoder.(
       Config.{
         name:
@@ -222,18 +222,16 @@ let bot = (path, yaml: value) => {
 let decode_config = content => {
   let yaml = Yaml.of_string_exn(content);
   Types.Config.(
-    Decoder.(
-      Types.Action.{
-        version: "0.1.0",
-        actions:
-          yaml |> member("actions") |> list(action, "") |> List.to_array,
-        default_action:
-          yaml |> member("default_action") |> action("default_action"),
-        slack:
-          yaml |> member("slack", ~optional=true) |> option(slack, "slack"),
-        bot: yaml |> member("bot") |> bot("bot"),
-      }
-    )
+    Decoder.{
+      version: "0.1.0",
+      actions:
+        yaml |> member("actions") |> list(action, "") |> List.to_array,
+      default_action:
+        yaml |> member("default_action") |> action("default_action"),
+      slack:
+        yaml |> member("slack", ~optional=true) |> option(slack, "slack"),
+      bot: yaml |> member("bot") |> bot("bot"),
+    }
   );
 };
 

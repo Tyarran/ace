@@ -1,5 +1,4 @@
 open Base;
-open Lwt;
 open Re2.Exceptions;
 open Re2;
 open Types.Action;
@@ -13,9 +12,6 @@ type message_kind =
   | Mk_command(string, list(string))
   | Mk_text(string);
 
-/* type processing_result = */
-/*   Result.t(Lwt_result.t(string, string), processing_error); */
-/*  */
 let command_regex = Re2.create_exn("^\\!(?P<command>\\w+)\\ *(?P<args>.*)$");
 
 let filter_empty_string = string_list =>
@@ -44,7 +40,7 @@ let process_command = text =>
 
 let process_message = message =>
   switch (message) {
-  | string when String.is_prefix(message, ~prefix="!") =>
+  | _string when String.is_prefix(message, ~prefix="!") =>
     process_command(message)
   | _other => Ok(Mk_text(message))
   };
