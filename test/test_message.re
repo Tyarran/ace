@@ -2,14 +2,14 @@ open Ace;
 open Alcotest;
 
 module To_test = {
-  let process_message = Ace.Processor.process_message;
+  let process = Ace.Message.process;
 };
 
 /* tests */
 let test_process_message_simple = () => {
-  let message = Message.{input: Message.Shell("!ping")};
+  let message = Message.Shell("!ping");
 
-  let actual = To_test.process_message(message);
+  let actual = To_test.process(message);
 
   switch (actual) {
   | Ok(Command(name, arguments)) =>
@@ -20,9 +20,9 @@ let test_process_message_simple = () => {
 };
 
 let test_process_message_arguments = () => {
-  let message = Message.{input: Message.Shell("!ping one two three")};
+  let message = Message.Shell("!ping one two three");
 
-  let actual = To_test.process_message(message);
+  let actual = To_test.process(message);
 
   switch (actual) {
   | Ok(Command(name, arguments)) =>
@@ -38,47 +38,45 @@ let test_process_message_arguments = () => {
 };
 
 let test_process_message_invalid_command = () => {
-  let message = Message.{input: Message.Shell("ping one two three")};
+  let message = Message.Shell("ping one two three");
 
-  let actual = To_test.process_message(message);
+  let actual = To_test.process(message);
 
   switch (actual) {
-  | Error(Processor.InvalidCommand(message)) =>
+  | Error(Message.InvalidCommand(message)) =>
     check(string, "should be the message", "ping one two three", message)
   | _ => failwith("should not be an error")
   };
 };
 
 let test_process_message_empty_command = () => {
-  let message = Message.{input: Message.Shell("")};
-  let actual = To_test.process_message(message);
+  let message = Message.Shell("");
+
+  let actual = To_test.process(message);
 
   switch (actual) {
-  | Error(Processor.InvalidCommand(message)) =>
+  | Error(Message.InvalidCommand(message)) =>
     check(string, "should be the message", "", message)
   | _ => failwith("should not be an error")
   };
 };
 
 let test_process_message_double_exclamation = () => {
-  let message = Message.{input: Message.Shell("!!ping")};
-  let actual = To_test.process_message(message);
+  let message = Message.Shell("!!ping");
+
+  let actual = To_test.process(message);
 
   switch (actual) {
-  | Error(Processor.InvalidCommandName(message)) =>
+  | Error(Message.InvalidCommandName(message)) =>
     check(string, "should be the message", "!ping", message)
   | _ => failwith("should not be an error")
   };
-  Stdio.Out_channel.flush(Stdio.stdout);
 };
 
 let test_process_message_double_quoted_argument = () => {
-  let message =
-    Message.{
-      input: Message.Shell("!ping one two \"quoted argument\" three"),
-    };
+  let message = Message.Shell("!ping one two \"quoted argument\" three");
 
-  let actual = To_test.process_message(message);
+  let actual = To_test.process(message);
 
   switch (actual) {
   | Ok(Command(name, args)) =>
@@ -91,7 +89,6 @@ let test_process_message_double_quoted_argument = () => {
     );
   | _ => failwith("should not be an error")
   };
-  Stdio.Out_channel.flush(Stdio.stdout);
 };
 
 let () =
