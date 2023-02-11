@@ -12,7 +12,7 @@ let test_str_concat = () =>
   check(
     string,
     "Should be foobar",
-    "foobarr",
+    "foobar",
     String.concat("", ["foo", "bar"]),
   );
 

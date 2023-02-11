@@ -1,5 +1,4 @@
 open Ace;
-open Ace.Types;
 open Alcotest;
 
 module To_test = {
@@ -8,7 +7,8 @@ module To_test = {
 
 /* tests */
 let test_process_message_simple = () => {
-  let message = Message.make("!ping", Origin.Shell);
+  let message = Message.{input: Message.Shell("!ping")};
+
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -20,7 +20,8 @@ let test_process_message_simple = () => {
 };
 
 let test_process_message_arguments = () => {
-  let message = Message.make("!ping one two three", Origin.Shell);
+  let message = Message.{input: Message.Shell("!ping one two three")};
+
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -37,7 +38,8 @@ let test_process_message_arguments = () => {
 };
 
 let test_process_message_invalid_command = () => {
-  let message = Message.make("ping one two three", Origin.Shell);
+  let message = Message.{input: Message.Shell("ping one two three")};
+
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -48,7 +50,7 @@ let test_process_message_invalid_command = () => {
 };
 
 let test_process_message_empty_command = () => {
-  let message = Message.make("", Origin.Shell);
+  let message = Message.{input: Message.Shell("")};
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -59,7 +61,7 @@ let test_process_message_empty_command = () => {
 };
 
 let test_process_message_double_exclamation = () => {
-  let message = Message.make("!!ping", Origin.Shell);
+  let message = Message.{input: Message.Shell("!!ping")};
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -71,7 +73,11 @@ let test_process_message_double_exclamation = () => {
 };
 
 let test_process_message_double_quoted_argument = () => {
-  let message = Message.make("!ping \"quoted argument\"", Origin.Shell);
+  let message =
+    Message.{
+      input: Message.Shell("!ping one two \"quoted argument\" three"),
+    };
+
   let actual = To_test.process_message(message);
 
   switch (actual) {
@@ -80,7 +86,7 @@ let test_process_message_double_quoted_argument = () => {
     check(
       list(string),
       "should contains one argument",
-      ["quoted argument"],
+      ["one", "two", "quoted argument", "three"],
       args,
     );
   | _ => failwith("should not be an error")

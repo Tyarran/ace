@@ -1,4 +1,4 @@
 
 (tests
-  (names test_processor)
+  (names test_processor test1 test2)
   (libraries ace alcotest))
