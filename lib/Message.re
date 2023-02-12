@@ -32,32 +32,7 @@ module Action = {
   };
 };
 
-let actions = [
-  Action.{
-    name: "ping",
-    only_from: None,
-    runner: Internal("ping"),
-    trigger: Command("ping"),
-  },
-  {
-    name: "help",
-    only_from: None,
-    runner: Internal("help"),
-    trigger: Command("help"),
-  },
-];
-
-let default_action =
-  Action.{
-    name: "help",
-    only_from: None,
-    runner: Internal("help"),
-    trigger: Unknown,
-  };
-
 module ShellProcessor = {
-  type message = string;
-
   let split_regex = Re.Pcre.regexp("\".*\"", ~flags=[`CASELESS]);
 
   let read_args = args => {
@@ -111,6 +86,8 @@ let process = message => {
   | Shell(input) => ShellProcessor.process_message(input)
   };
 };
+
+let make_shell = raw_input => Shell(raw_input);
 
 let is_valid_origin = (message, only_from) => {
   switch (message, only_from) {

@@ -8,7 +8,7 @@ module To_test = {
 
 /* tests */
 let test_process_message_simple = () => {
-  let message = Message.Shell("!ping");
+  let message = Message.make_shell("!ping");
 
   let actual = To_test.process(message);
 
@@ -21,7 +21,7 @@ let test_process_message_simple = () => {
 };
 
 let test_process_message_arguments = () => {
-  let message = Message.Shell("!ping one two three");
+  let message = Message.make_shell("!ping one two three");
 
   let actual = To_test.process(message);
 
@@ -39,7 +39,7 @@ let test_process_message_arguments = () => {
 };
 
 let test_process_message_invalid_command = () => {
-  let message = Message.Shell("ping one two three");
+  let message = Message.make_shell("ping one two three");
 
   let actual = To_test.process(message);
 
@@ -51,7 +51,7 @@ let test_process_message_invalid_command = () => {
 };
 
 let test_process_message_empty_command = () => {
-  let message = Message.Shell("");
+  let message = Message.make_shell("");
 
   let actual = To_test.process(message);
 
@@ -63,7 +63,7 @@ let test_process_message_empty_command = () => {
 };
 
 let test_process_message_double_exclamation = () => {
-  let message = Message.Shell("!!ping");
+  let message = Message.make_shell("!!ping");
 
   let actual = To_test.process(message);
 
@@ -75,7 +75,7 @@ let test_process_message_double_exclamation = () => {
 };
 
 let test_process_message_double_quoted_argument = () => {
-  let message = Message.Shell("!ping one two \"quoted argument\" three");
+  let message = Message.make_shell("!ping one two \"quoted argument\" three");
 
   let actual = To_test.process(message);
 
@@ -116,7 +116,7 @@ module FindActionTest = {
       trigger: Unknown,
     };
   let test_find_action = () => {
-    let message = Message.Shell("!ping");
+    let message = Message.make_shell("!ping");
     let input = Message.Command("ping", []);
 
     let actual = To_test.find_action(message, input, actions, default_action);
@@ -125,7 +125,7 @@ module FindActionTest = {
   };
 
   let test_find_action_default = () => {
-    let message = Message.Shell("!unknown-command");
+    let message = Message.make_shell("!unknown-command");
     let input = Message.Command("unknown-command", []);
 
     let actual = To_test.find_action(message, input, actions, default_action);
@@ -134,7 +134,7 @@ module FindActionTest = {
   };
 
   let test_find_action_only_slack = () => {
-    let message = Message.Shell("!ping");
+    let message = Message.make_shell("!ping");
     let input = Message.Command("ping", []);
     let actions = [
       Message.Action.{

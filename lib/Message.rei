@@ -1,0 +1,34 @@
+open Base;
+
+type t;
+
+type input =
+  | Command(string, list(string));
+
+type processor_error =
+  | InvalidCommand(string)
+  | InvalidCommandName(string);
+
+module Action: {
+  type runner =
+    | Internal(string);
+
+  type trigger =
+    | Command(string)
+    | Unknown;
+
+  type origin =
+    | Shell
+    | Slack;
+
+  type t = {
+    name: string,
+    only_from: option(list(origin)),
+    runner,
+    trigger,
+  };
+};
+
+let make_shell: string => t;
+let process: t => Result.t(input, processor_error);
+let find_action: (t, input, list(Action.t), Action.t) => Action.t;
