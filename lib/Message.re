@@ -21,7 +21,8 @@ module Action = {
     | Unknown;
 
   type origin =
-    | Shell;
+    | Shell
+    | Slack;
 
   type t = {
     name: string,
@@ -111,19 +112,37 @@ let process = message => {
   };
 };
 
-let find_action = (input, actions: list(Action.t), default: Action.t) => {
+let is_valid_origin = (message, only_from) => {
+  switch (message, only_from) {
+  | (_, None) => true
+  | (Shell(_message), Some(from)) =>
+    from
+    |> List.find(~f=(origin: Action.origin) => {
+         switch (origin) {
+         | Shell => true
+         | _ => false
+         }
+       })
+    |> Option.is_some
+  };
+};
+
+let find_action =
+    (message, input, actions: list(Action.t), default: Action.t) => {
   let found_action =
     List.find(actions, ~f=action => {
       switch (input, action.trigger) {
-      | (Command(command_name, _), Command(trigger_name))
-          when Poly.(command_name == trigger_name) =>
-        true
+      | (Command(command_name, _), Command(trigger_name)) =>
+        Poly.(command_name == trigger_name)
+        && is_valid_origin(message, action.only_from)
       | _ => false
       }
     });
 
-  switch (found_action) {
-  | Some(found) => found
-  | None => default
-  };
+  let action =
+    switch (found_action) {
+    | Some(found) => found
+    | None => default
+    };
+  action;
 };

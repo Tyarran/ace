@@ -116,17 +116,36 @@ module FindActionTest = {
       trigger: Unknown,
     };
   let test_find_action = () => {
+    let message = Message.Shell("!ping");
     let input = Message.Command("ping", []);
 
-    let actual = To_test.find_action(input, actions, default_action);
+    let actual = To_test.find_action(message, input, actions, default_action);
 
     check(string, "should be the ping action", "ping", actual.name);
   };
 
   let test_find_action_default = () => {
+    let message = Message.Shell("!unknown-command");
     let input = Message.Command("unknown-command", []);
 
-    let actual = To_test.find_action(input, actions, default_action);
+    let actual = To_test.find_action(message, input, actions, default_action);
+
+    check(string, "should be the ping action", "help", actual.name);
+  };
+
+  let test_find_action_only_slack = () => {
+    let message = Message.Shell("!ping");
+    let input = Message.Command("ping", []);
+    let actions = [
+      Message.Action.{
+        name: "ping",
+        only_from: Some([Message.Action.Slack]),
+        runner: Internal("ping"),
+        trigger: Command("ping"),
+      },
+    ];
+
+    let actual = To_test.find_action(message, input, actions, default_action);
 
     check(string, "should be the ping action", "help", actual.name);
   };
@@ -171,6 +190,11 @@ let () =
             "default case",
             `Quick,
             FindActionTest.test_find_action_default,
+          ),
+          test_case(
+            "with only_from filter",
+            `Quick,
+            FindActionTest.test_find_action_only_slack,
           ),
         ],
       ),
