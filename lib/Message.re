@@ -12,6 +12,48 @@ type t =
 
 let command_regex = Re.Pcre.regexp("^([\\w]|_-)+$", ~flags=[`CASELESS]);
 
+module Action = {
+  type runner =
+    | Internal(string);
+
+  type trigger =
+    | Command(string)
+    | Unknown;
+
+  type origin =
+    | Shell;
+
+  type t = {
+    name: string,
+    only_from: option(list(origin)),
+    runner,
+    trigger,
+  };
+};
+
+let actions = [
+  Action.{
+    name: "ping",
+    only_from: None,
+    runner: Internal("ping"),
+    trigger: Command("ping"),
+  },
+  {
+    name: "help",
+    only_from: None,
+    runner: Internal("help"),
+    trigger: Command("help"),
+  },
+];
+
+let default_action =
+  Action.{
+    name: "help",
+    only_from: None,
+    runner: Internal("help"),
+    trigger: Unknown,
+  };
+
 module ShellProcessor = {
   type message = string;
 
@@ -66,5 +108,22 @@ module ShellProcessor = {
 let process = message => {
   switch (message) {
   | Shell(input) => ShellProcessor.process_message(input)
+  };
+};
+
+let find_action = (input, actions: list(Action.t), default: Action.t) => {
+  let found_action =
+    List.find(actions, ~f=action => {
+      switch (input, action.trigger) {
+      | (Command(command_name, _), Command(trigger_name))
+          when Poly.(command_name == trigger_name) =>
+        true
+      | _ => false
+      }
+    });
+
+  switch (found_action) {
+  | Some(found) => found
+  | None => default
   };
 };

@@ -3,6 +3,7 @@ open Alcotest;
 
 module To_test = {
   let process = Ace.Message.process;
+  let find_action = Ace.Message.find_action;
 };
 
 /* tests */
@@ -91,6 +92,46 @@ let test_process_message_double_quoted_argument = () => {
   };
 };
 
+module FindActionTest = {
+  let actions = [
+    Message.Action.{
+      name: "ping",
+      only_from: None,
+      runner: Internal("ping"),
+      trigger: Command("ping"),
+    },
+    {
+      name: "help",
+      only_from: None,
+      runner: Internal("help"),
+      trigger: Command("help"),
+    },
+  ];
+
+  let default_action =
+    Message.Action.{
+      name: "help",
+      only_from: None,
+      runner: Internal("help"),
+      trigger: Unknown,
+    };
+  let test_find_action = () => {
+    let input = Message.Command("ping", []);
+
+    let actual = To_test.find_action(input, actions, default_action);
+
+    check(string, "should be the ping action", "ping", actual.name);
+  };
+
+  let test_find_action_default = () => {
+    let input = Message.Command("unknown-command", []);
+
+    let actual = To_test.find_action(input, actions, default_action);
+
+    check(string, "should be the ping action", "help", actual.name);
+  };
+};
+
 let () =
   run(
     "Processor",
@@ -119,6 +160,17 @@ let () =
             "with double quoted argument",
             `Quick,
             test_process_message_double_quoted_argument,
+          ),
+        ],
+      ),
+      (
+        "find_action",
+        [
+          test_case("simple case", `Quick, FindActionTest.test_find_action),
+          test_case(
+            "default case",
+            `Quick,
+            FindActionTest.test_find_action_default,
           ),
         ],
       ),
