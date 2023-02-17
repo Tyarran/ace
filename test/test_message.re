@@ -97,13 +97,13 @@ module FindActionTest = {
     Message.Action.{
       name: "ping",
       only_from: None,
-      runner: Internal("ping"),
+      runner: Internal(Ping),
       trigger: Command("ping"),
     },
     {
       name: "help",
       only_from: None,
-      runner: Internal("help"),
+      runner: Internal(Ping),
       trigger: Command("help"),
     },
   ];
@@ -112,7 +112,7 @@ module FindActionTest = {
     Message.Action.{
       name: "help",
       only_from: None,
-      runner: Internal("help"),
+      runner: Internal(Help),
       trigger: Unknown,
     };
   let test_find_action = () => {
@@ -140,7 +140,7 @@ module FindActionTest = {
       Message.Action.{
         name: "ping",
         only_from: Some([Message.Action.Slack]),
-        runner: Internal("ping"),
+        runner: Internal(Help),
         trigger: Command("ping"),
       },
     ];

@@ -13,8 +13,12 @@ type t =
 let command_regex = Re.Pcre.regexp("^([\\w]|_-)+$", ~flags=[`CASELESS]);
 
 module Action = {
+  type internal_command =
+    | Help
+    | Ping;
+
   type runner =
-    | Internal(string);
+    | Internal(internal_command);
 
   type trigger =
     | Command(string)

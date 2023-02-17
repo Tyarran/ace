@@ -10,8 +10,12 @@ type processor_error =
   | InvalidCommandName(string);
 
 module Action: {
+  type internal_command =
+    | Help
+    | Ping;
+
   type runner =
-    | Internal(string);
+    | Internal(internal_command);
 
   type trigger =
     | Command(string)

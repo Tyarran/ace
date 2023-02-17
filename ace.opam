@@ -11,6 +11,9 @@ depends: [
   "reason"
   "ocaml"
   "alcotest"
+  "alcotest-lwt"
+  "conf-libev"
+  "lwt"
   "odoc" {with-doc}
 ]
 build: [

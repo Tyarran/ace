@@ -1,4 +1,4 @@
 (library
  (name ace)
  (public_name ace)
- (libraries base re stdio))
+ (libraries base re stdio lwt))

@@ -1,4 +1,4 @@
 
 (tests
-  (names test_message)
-  (libraries ace alcotest))
+  (names test_message test_runner)
+  (libraries ace alcotest alcotest-lwt))
