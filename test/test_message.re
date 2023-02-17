@@ -2,7 +2,7 @@ open Ace;
 open Alcotest;
 
 module To_test = {
-  let process = Ace.Message.process;
+  let parse = Ace.Message.parse;
   let find_action = Ace.Message.find_action;
 };
 
@@ -10,7 +10,7 @@ module To_test = {
 let test_process_message_simple = () => {
   let message = Message.make_shell("!ping");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Ok(Command(name, arguments)) =>
@@ -23,7 +23,7 @@ let test_process_message_simple = () => {
 let test_process_message_arguments = () => {
   let message = Message.make_shell("!ping one two three");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Ok(Command(name, arguments)) =>
@@ -41,7 +41,7 @@ let test_process_message_arguments = () => {
 let test_process_message_invalid_command = () => {
   let message = Message.make_shell("ping one two three");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Error(Message.InvalidCommand(message)) =>
@@ -53,7 +53,7 @@ let test_process_message_invalid_command = () => {
 let test_process_message_empty_command = () => {
   let message = Message.make_shell("");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Error(Message.InvalidCommand(message)) =>
@@ -65,7 +65,7 @@ let test_process_message_empty_command = () => {
 let test_process_message_double_exclamation = () => {
   let message = Message.make_shell("!!ping");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Error(Message.InvalidCommandName(message)) =>
@@ -77,7 +77,7 @@ let test_process_message_double_exclamation = () => {
 let test_process_message_double_quoted_argument = () => {
   let message = Message.make_shell("!ping one two \"quoted argument\" three");
 
-  let actual = To_test.process(message);
+  let actual = To_test.parse(message);
 
   switch (actual) {
   | Ok(Command(name, args)) =>
@@ -119,7 +119,7 @@ module FindActionTest = {
     let message = Message.make_shell("!ping");
     let input = Message.Command("ping", []);
 
-    let actual = To_test.find_action(message, input, actions, default_action);
+    let actual = To_test.find_action(actions, default_action, message, input);
 
     check(string, "should be the ping action", "ping", actual.name);
   };
@@ -128,7 +128,7 @@ module FindActionTest = {
     let message = Message.make_shell("!unknown-command");
     let input = Message.Command("unknown-command", []);
 
-    let actual = To_test.find_action(message, input, actions, default_action);
+    let actual = To_test.find_action(actions, default_action, message, input);
 
     check(string, "should be the ping action", "help", actual.name);
   };
@@ -145,7 +145,7 @@ module FindActionTest = {
       },
     ];
 
-    let actual = To_test.find_action(message, input, actions, default_action);
+    let actual = To_test.find_action(actions, default_action, message, input);
 
     check(string, "should be the ping action", "help", actual.name);
   };

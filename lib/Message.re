@@ -85,7 +85,7 @@ module ShellProcessor = {
   };
 };
 
-let process = message => {
+let parse = message => {
   switch (message) {
   | Shell(input) => ShellProcessor.process_message(input)
   };
@@ -109,7 +109,7 @@ let is_valid_origin = (message, only_from) => {
 };
 
 let find_action =
-    (message, input, actions: list(Action.t), default: Action.t) => {
+    (actions: list(Action.t), default: Action.t, message, input) => {
   let found_action =
     List.find(actions, ~f=action => {
       switch (input, action.trigger) {

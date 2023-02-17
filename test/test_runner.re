@@ -2,14 +2,11 @@ open Alcotest;
 open Lwt.Infix;
 
 module To_test = {
-  open Ace;
-  let run = Runner.run;
-  let _do_ping = Runner.do_ping;
-  let _do_nothing = Runner.do_nothing;
+  let run = Ace.Runner.run;
 };
 
 module RunAction = {
-  let test_run = (_, ()) => {
+  let test_run_ping = (_, ()) => {
     let action =
       Ace.Message.Action.{
         name: "test action",
@@ -18,13 +15,41 @@ module RunAction = {
         trigger: Command("ping"),
       };
 
-    action
-    |> To_test.run
+    To_test.run(action)
     >>= (
       action_res => {
         switch (action_res) {
         | Ok(Bool(result)) =>
-          Lwt.return(check(bool, "should be true", true, result))
+          check(bool, "should be true", true, result);
+          Lwt.return();
+        | _ => failwith("sh;
+        ould not be an error")
+        };
+      }
+    );
+  };
+
+  let test_run_help = (_, ()) => {
+    let action =
+      Ace.Message.Action.{
+        name: "test action",
+        only_from: None,
+        runner: Internal(Help),
+        trigger: Command("Help"),
+      };
+
+    To_test.run(action)
+    >>= (
+      action_res => {
+        switch (action_res) {
+        | Ok(ListKeyValue(result)) =>
+          check(
+            string,
+            "should be the same",
+            "Available commands:",
+            result.intro,
+          );
+          Lwt.return();
         | _ => failwith("should not be an error")
         };
       }
@@ -35,11 +60,22 @@ module RunAction = {
 let () =
   Lwt_main.run @@
   Alcotest_lwt.run(
-    "Processor",
+    "Runner",
     [
       (
         "run",
-        [Alcotest_lwt.test_case("Initial case", `Quick, RunAction.test_run)],
+        [
+          Alcotest_lwt.test_case(
+            "run ping internal command",
+            `Quick,
+            RunAction.test_run_ping,
+          ),
+          Alcotest_lwt.test_case(
+            "run help internal command",
+            `Quick,
+            RunAction.test_run_help,
+          ),
+        ],
       ),
     ],
   );

@@ -34,5 +34,5 @@ module Action: {
 };
 
 let make_shell: string => t;
-let process: t => Result.t(input, processor_error);
-let find_action: (t, input, list(Action.t), Action.t) => Action.t;
+let parse: t => Result.t(input, processor_error);
+let find_action: (list(Action.t), Action.t, t, input) => Action.t;
