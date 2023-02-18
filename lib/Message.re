@@ -1,20 +1,36 @@
 open Base;
 
+module Input = {
+  type t =
+    | Shell(string);
+
+  let get_raw = input => {
+    switch (input) {
+    | Shell(raw_input) => raw_input
+    };
+  };
+
+  let from_shell = raw_input => Shell(raw_input);
+};
+
+type message_type =
+  | Command(string, list(string));
+
+type t = {
+  input: Input.t,
+  value: message_type,
+};
+
 type processor_error =
   | InvalidCommand(string)
   | InvalidCommandName(string);
-
-type input =
-  | Command(string, list(string));
-
-type t =
-  | Shell(string);
 
 let command_regex = Re.Pcre.regexp("^([\\w]|_-)+$", ~flags=[`CASELESS]);
 
 module Action = {
   type internal_command =
     | Help
+    | Debug
     | Ping;
 
   type runner =
@@ -33,6 +49,13 @@ module Action = {
     only_from: option(list(origin)),
     runner,
     trigger,
+  };
+};
+
+module Config = {
+  type t = {
+    actions: list(Action.t),
+    default_action: Action.t,
   };
 };
 
@@ -60,43 +83,43 @@ module ShellProcessor = {
     |> List.filter(~f=arg => Poly.(arg != ""));
   };
 
-  let valid_command_name = name => Re.Pcre.pmatch(name, ~rex=command_regex);
+  let is_valid_command_name = name =>
+    Re.Pcre.pmatch(name, ~rex=command_regex);
 
-  let valid_command = (name, ~args=[], ()) =>
-    if (valid_command_name(name)) {
-      Ok(Command(name, read_args(args)));
+  let build_message = (input, name, args) =>
+    if (is_valid_command_name(name)) {
+      Ok({input, value: Command(name, read_args(args))});
     } else {
       Error(InvalidCommandName(name));
     };
 
-  let parse_command = raw_command => {
+  let create_message = (input, raw_command) => {
     switch (String.split(raw_command, ~on=' ')) {
     | [] => Error(InvalidCommand(raw_command))
-    | [name] => valid_command(name, ())
-    | [name, ...args] => valid_command(name, ~args, ())
+    | [name] => build_message(input, name, [])
+    | [name, ...args] => build_message(input, name, args)
     };
   };
 
-  let process_message = message => {
-    switch (String.chop_prefix(message, ~prefix="!")) {
-    | Some(raw_command) => parse_command(raw_command)
-    | None => Error(InvalidCommand(message))
+  let process_input = input => {
+    let raw_input = Input.get_raw(input);
+    switch (String.chop_prefix(raw_input, ~prefix="!")) {
+    | Some(raw_command) => create_message(input, raw_command)
+    | None => Error(InvalidCommand(raw_input))
     };
   };
 };
 
-let parse = message => {
-  switch (message) {
-  | Shell(input) => ShellProcessor.process_message(input)
+let process = input => {
+  switch (input) {
+  | Input.Shell(_) => ShellProcessor.process_input(input)
   };
 };
 
-let make_shell = raw_input => Shell(raw_input);
-
-let is_valid_origin = (message, only_from) => {
-  switch (message, only_from) {
+let is_valid_origin = (input, only_from) => {
+  switch (input, only_from) {
   | (_, None) => true
-  | (Shell(_message), Some(from)) =>
+  | (Input.Shell(_message), Some(from)) =>
     from
     |> List.find(~f=(origin: Action.origin) => {
          switch (origin) {
@@ -108,14 +131,13 @@ let is_valid_origin = (message, only_from) => {
   };
 };
 
-let find_action =
-    (actions: list(Action.t), default: Action.t, message, input) => {
+let find_action = (config: Config.t, message) => {
   let found_action =
-    List.find(actions, ~f=action => {
-      switch (input, action.trigger) {
+    List.find(config.actions, ~f=action => {
+      switch (message.value, action.trigger) {
       | (Command(command_name, _), Command(trigger_name)) =>
         Poly.(command_name == trigger_name)
-        && is_valid_origin(message, action.only_from)
+        && is_valid_origin(message.input, action.only_from)
       | _ => false
       }
     });
@@ -123,7 +145,7 @@ let find_action =
   let action =
     switch (found_action) {
     | Some(found) => found
-    | None => default
+    | None => config.default_action
     };
   action;
 };

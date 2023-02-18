@@ -5,6 +5,31 @@ module To_test = {
   let run = Ace.Runner.run;
 };
 
+let config =
+  Ace.Message.Config.{
+    actions: [
+      Ace.Message.Action.{
+        name: "test action",
+        only_from: None,
+        runner: Internal(Ping),
+        trigger: Command("ping"),
+      },
+      Ace.Message.Action.{
+        name: "test action",
+        only_from: None,
+        runner: Internal(Help),
+        trigger: Command("Help"),
+      },
+    ],
+    default_action:
+      Ace.Message.Action.{
+        name: "test action",
+        only_from: None,
+        runner: Internal(Help),
+        trigger: Command("Help"),
+      },
+  };
+
 module RunAction = {
   let test_run_ping = (_, ()) => {
     let action =
@@ -14,8 +39,13 @@ module RunAction = {
         runner: Internal(Ping),
         trigger: Command("ping"),
       };
+    let message =
+      Ace.Message.{
+        value: Command("ping", []),
+        input: Input.from_shell("ping"),
+      };
 
-    To_test.run(action)
+    To_test.run(config, message, action)
     >>= (
       action_res => {
         switch (action_res) {
@@ -37,8 +67,13 @@ module RunAction = {
         runner: Internal(Help),
         trigger: Command("Help"),
       };
+    let message =
+      Ace.Message.{
+        value: Command("help", []),
+        input: Input.from_shell("help"),
+      };
 
-    To_test.run(action)
+    To_test.run(config, message, action)
     >>= (
       action_res => {
         switch (action_res) {
@@ -66,12 +101,12 @@ let () =
         "run",
         [
           Alcotest_lwt.test_case(
-            "run ping internal command",
+            "ping internal command",
             `Quick,
             RunAction.test_run_ping,
           ),
           Alcotest_lwt.test_case(
-            "run help internal command",
+            "help internal command",
             `Quick,
             RunAction.test_run_help,
           ),

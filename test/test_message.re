@@ -2,31 +2,49 @@ open Ace;
 open Alcotest;
 
 module To_test = {
-  let parse = Ace.Message.parse;
+  let process = Ace.Message.process;
   let find_action = Ace.Message.find_action;
 };
 
 /* tests */
-let test_process_message_simple = () => {
-  let message = Message.make_shell("!ping");
+let test_process_ping_input = () => {
+  let input = Message.Input.from_shell("!ping");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
-  | Ok(Command(name, arguments)) =>
+  switch (message_res) {
+  | Ok({input: _, value: Command(name, arguments)}) =>
     check(string, "should be ping", "ping", name);
     check(list(string), "should be an empty list", [], arguments);
   | Error(_) => failwith("should not be an error")
   };
 };
 
-let test_process_message_arguments = () => {
-  let message = Message.make_shell("!ping one two three");
+let test_process_debug_input = () => {
+  let input = Message.Input.from_shell("!debug \"!ping one two three\"");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
-  | Ok(Command(name, arguments)) =>
+  switch (message_res) {
+  | Ok({input: _, value: Command(name, arguments)}) =>
+    check(string, "should be debug", "debug", name);
+    check(
+      list(string),
+      "should be a list of one item",
+      ["!ping one two three"],
+      arguments,
+    );
+  | Error(_) => failwith("should not be an error")
+  };
+};
+
+let test_process_input_with_arguments = () => {
+  let input = Message.Input.from_shell("!ping one two three");
+
+  let message_res = To_test.process(input);
+
+  switch (message_res) {
+  | Ok({input: _, value: Command(name, arguments)}) =>
     check(string, "should be ping", "ping", name);
     check(
       list(string),
@@ -38,49 +56,50 @@ let test_process_message_arguments = () => {
   };
 };
 
-let test_process_message_invalid_command = () => {
-  let message = Message.make_shell("ping one two three");
+let test_process_input_invalid_command = () => {
+  let input = Message.Input.from_shell("ping one two three");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
+  switch (message_res) {
   | Error(Message.InvalidCommand(message)) =>
     check(string, "should be the message", "ping one two three", message)
   | _ => failwith("should not be an error")
   };
 };
 
-let test_process_message_empty_command = () => {
-  let message = Message.make_shell("");
+let test_process_input_empty_command = () => {
+  let input = Message.Input.from_shell("");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
+  switch (message_res) {
   | Error(Message.InvalidCommand(message)) =>
     check(string, "should be the message", "", message)
   | _ => failwith("should not be an error")
   };
 };
 
-let test_process_message_double_exclamation = () => {
-  let message = Message.make_shell("!!ping");
+let test_process_input_double_exclamation = () => {
+  let input = Message.Input.from_shell("!!ping");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
+  switch (message_res) {
   | Error(Message.InvalidCommandName(message)) =>
     check(string, "should be the message", "!ping", message)
   | _ => failwith("should not be an error")
   };
 };
 
-let test_process_message_double_quoted_argument = () => {
-  let message = Message.make_shell("!ping one two \"quoted argument\" three");
+let test_process_input_double_quoted_argument = () => {
+  let input =
+    Message.Input.from_shell("!ping one two \"quoted argument\" three");
 
-  let actual = To_test.parse(message);
+  let message_res = To_test.process(input);
 
-  switch (actual) {
-  | Ok(Command(name, args)) =>
+  switch (message_res) {
+  | Ok({input: _, value: Command(name, args)}) =>
     check(string, "should be ping", "ping", name);
     check(
       list(string),
@@ -93,59 +112,74 @@ let test_process_message_double_quoted_argument = () => {
 };
 
 module FindActionTest = {
-  let actions = [
-    Message.Action.{
-      name: "ping",
-      only_from: None,
-      runner: Internal(Ping),
-      trigger: Command("ping"),
-    },
-    {
-      name: "help",
-      only_from: None,
-      runner: Internal(Ping),
-      trigger: Command("help"),
-    },
-  ];
-
-  let default_action =
-    Message.Action.{
-      name: "help",
-      only_from: None,
-      runner: Internal(Help),
-      trigger: Unknown,
+  let config =
+    Message.Config.{
+      actions: [
+        Message.Action.{
+          name: "ping",
+          only_from: None,
+          runner: Internal(Ping),
+          trigger: Command("ping"),
+        },
+        {
+          name: "help",
+          only_from: None,
+          runner: Internal(Ping),
+          trigger: Command("help"),
+        },
+      ],
+      default_action:
+        Message.Action.{
+          name: "help",
+          only_from: None,
+          runner: Internal(Help),
+          trigger: Unknown,
+        },
     };
-  let test_find_action = () => {
-    let message = Message.make_shell("!ping");
-    let input = Message.Command("ping", []);
 
-    let actual = To_test.find_action(actions, default_action, message, input);
+  let test_find_action = () => {
+    let message =
+      Message.{
+        input: Message.Input.from_shell("!ping"),
+        value: Message.Command("ping", []),
+      };
+
+    let actual = To_test.find_action(config, message);
 
     check(string, "should be the ping action", "ping", actual.name);
   };
 
   let test_find_action_default = () => {
-    let message = Message.make_shell("!unknown-command");
-    let input = Message.Command("unknown-command", []);
+    let message =
+      Message.{
+        input: Message.Input.from_shell("!unknown-command"),
+        value: Message.Command("unknown-command", []),
+      };
 
-    let actual = To_test.find_action(actions, default_action, message, input);
+    let actual = To_test.find_action(config, message);
 
     check(string, "should be the ping action", "help", actual.name);
   };
 
   let test_find_action_only_slack = () => {
-    let message = Message.make_shell("!ping");
-    let input = Message.Command("ping", []);
-    let actions = [
-      Message.Action.{
-        name: "ping",
-        only_from: Some([Message.Action.Slack]),
-        runner: Internal(Help),
-        trigger: Command("ping"),
-      },
-    ];
+    let message =
+      Message.{
+        input: Message.Input.from_shell("!ping"),
+        value: Message.Command("ping", []),
+      };
+    let config = {
+      ...config,
+      actions: [
+        Message.Action.{
+          name: "ping",
+          only_from: Some([Message.Action.Slack]),
+          runner: Internal(Help),
+          trigger: Command("ping"),
+        },
+      ],
+    };
 
-    let actual = To_test.find_action(actions, default_action, message, input);
+    let actual = To_test.find_action(config, message);
 
     check(string, "should be the ping action", "help", actual.name);
   };
@@ -156,29 +190,38 @@ let () =
     "Processor",
     [
       (
-        "process_message",
+        "process",
         [
-          test_case("simple case", `Quick, test_process_message_simple),
-          test_case("with arguments", `Quick, test_process_message_arguments),
+          test_case("process ping command", `Quick, test_process_ping_input),
+          test_case(
+            "process debug command",
+            `Quick,
+            test_process_debug_input,
+          ),
+          test_case(
+            "with arguments",
+            `Quick,
+            test_process_input_with_arguments,
+          ),
           test_case(
             "with invalid command (missing \"!\")",
             `Quick,
-            test_process_message_invalid_command,
+            test_process_input_invalid_command,
           ),
           test_case(
             "with empty command",
             `Quick,
-            test_process_message_empty_command,
+            test_process_input_empty_command,
           ),
           test_case(
             "with invalid command name (double \"!\")",
             `Quick,
-            test_process_message_double_exclamation,
+            test_process_input_double_exclamation,
           ),
           test_case(
             "with double quoted argument",
             `Quick,
-            test_process_message_double_quoted_argument,
+            test_process_input_double_quoted_argument,
           ),
         ],
       ),

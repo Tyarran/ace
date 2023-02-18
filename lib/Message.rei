@@ -1,9 +1,10 @@
 open Base;
 
-type t;
-
-type input =
-  | Command(string, list(string));
+module Input: {
+  type t;
+  let get_raw: t => string;
+  let from_shell: string => t;
+};
 
 type processor_error =
   | InvalidCommand(string)
@@ -12,6 +13,7 @@ type processor_error =
 module Action: {
   type internal_command =
     | Help
+    | Debug
     | Ping;
 
   type runner =
@@ -33,6 +35,20 @@ module Action: {
   };
 };
 
-let make_shell: string => t;
-let parse: t => Result.t(input, processor_error);
-let find_action: (list(Action.t), Action.t, t, input) => Action.t;
+module Config: {
+  type t = {
+    actions: list(Action.t),
+    default_action: Action.t,
+  };
+};
+
+type message_type =
+  | Command(string, list(string));
+
+type t = {
+  input: Input.t,
+  value: message_type,
+};
+
+let process: Input.t => Result.t(t, processor_error);
+let find_action: (Config.t, t) => Action.t;
