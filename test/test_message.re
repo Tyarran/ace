@@ -115,26 +115,23 @@ module FindActionTest = {
   let config =
     Message.Config.{
       actions: [
-        Message.Action.{
-          name: "ping",
-          only_from: None,
-          runner: Internal(Ping),
-          trigger: Command("ping"),
-        },
-        {
-          name: "help",
-          only_from: None,
-          runner: Internal(Ping),
-          trigger: Command("help"),
-        },
+        Message.Action.make(
+          "ping",
+          None,
+          Internal(Ping),
+          Command("ping"),
+          (),
+        ),
+        Message.Action.make(
+          "help",
+          None,
+          Internal(Ping),
+          Command("help"),
+          (),
+        ),
       ],
       default_action:
-        Message.Action.{
-          name: "help",
-          only_from: None,
-          runner: Internal(Help),
-          trigger: Unknown,
-        },
+        Message.Action.make("help", None, Internal(Help), Unknown, ()),
     };
 
   let test_find_action = () => {
@@ -170,12 +167,13 @@ module FindActionTest = {
     let config = {
       ...config,
       actions: [
-        Message.Action.{
-          name: "ping",
-          only_from: Some([Message.Action.Slack]),
-          runner: Internal(Help),
-          trigger: Command("ping"),
-        },
+        Message.Action.make(
+          "ping",
+          Some([Message.Action.Slack]),
+          Internal(Help),
+          Command("ping"),
+          (),
+        ),
       ],
     };
 

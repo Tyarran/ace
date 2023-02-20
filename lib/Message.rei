@@ -23,16 +23,32 @@ module Action: {
     | Command(string)
     | Unknown;
 
-  type origin =
+  type provider =
     | Shell
     | Slack;
 
+  type destination =
+    | Provider(provider)
+    | SameAsOrigin;
+
   type t = {
     name: string,
-    only_from: option(list(origin)),
+    only_from: option(list(provider)),
     runner,
     trigger,
+    destination,
   };
+
+  let make:
+    (
+      string,
+      option(list(provider)),
+      runner,
+      trigger,
+      ~destination: destination=?,
+      unit
+    ) =>
+    t;
 };
 
 module Config: {

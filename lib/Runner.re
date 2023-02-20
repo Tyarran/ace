@@ -2,7 +2,8 @@ open Base;
 open Message;
 
 type list_key_value_response = {
-  intro: string,
+  intro: option(string),
+  title: option(string),
   values: list((string, string)),
 };
 
@@ -55,7 +56,7 @@ let do_help = _input => {
       | Debug => ("debug", "Show debug information of a command")
       }
     });
-  ListKeyValue({intro: "Available commands:", values});
+  ListKeyValue({intro: None, title: Some("Available commands:"), values});
 };
 
 let build_internal_command_thread = (command, ctx: context) => {

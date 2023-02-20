@@ -1,4 +1,5 @@
 open Alcotest;
+open Base;
 open Lwt.Infix;
 
 module To_test = {
@@ -8,37 +9,41 @@ module To_test = {
 let config =
   Ace.Message.Config.{
     actions: [
-      Ace.Message.Action.{
-        name: "test action",
-        only_from: None,
-        runner: Internal(Ping),
-        trigger: Command("ping"),
-      },
-      Ace.Message.Action.{
-        name: "test action",
-        only_from: None,
-        runner: Internal(Help),
-        trigger: Command("Help"),
-      },
+      Ace.Message.Action.make(
+        "test action",
+        None,
+        Internal(Ping),
+        Command("ping"),
+        (),
+      ),
+      Ace.Message.Action.make(
+        "test action",
+        None,
+        Internal(Help),
+        Command("Help"),
+        (),
+      ),
     ],
     default_action:
-      Ace.Message.Action.{
-        name: "test action",
-        only_from: None,
-        runner: Internal(Help),
-        trigger: Command("Help"),
-      },
+      Ace.Message.Action.make(
+        "test action",
+        None,
+        Internal(Help),
+        Command("Help"),
+        (),
+      ),
   };
 
 module RunAction = {
   let test_run_ping = (_, ()) => {
     let action =
-      Ace.Message.Action.{
-        name: "test action",
-        only_from: None,
-        runner: Internal(Ping),
-        trigger: Command("ping"),
-      };
+      Ace.Message.Action.make(
+        "test action",
+        None,
+        Internal(Ping),
+        Command("ping"),
+        (),
+      );
     let message =
       Ace.Message.{
         value: Command("ping", []),
@@ -61,12 +66,13 @@ module RunAction = {
 
   let test_run_help = (_, ()) => {
     let action =
-      Ace.Message.Action.{
-        name: "test action",
-        only_from: None,
-        runner: Internal(Help),
-        trigger: Command("Help"),
-      };
+      Ace.Message.Action.make(
+        "test action",
+        None,
+        Internal(Help),
+        Command("Help"),
+        (),
+      );
     let message =
       Ace.Message.{
         value: Command("help", []),
@@ -82,7 +88,7 @@ module RunAction = {
             string,
             "should be the same",
             "Available commands:",
-            result.intro,
+            Option.value(result.title, ~default=""),
           );
           Lwt.return();
         | _ => failwith("should not be an error")

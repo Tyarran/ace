@@ -5,25 +5,28 @@ open Stdio;
 let config =
   Message.Config.{
     default_action:
-      Message.Action.{
-        name: "help",
-        only_from: None,
-        runner: Internal(Help),
-        trigger: Command("help"),
-      },
+      Message.Action.make(
+        "help",
+        None,
+        Internal(Help),
+        Command("help"),
+        (),
+      ),
     actions: [
-      Message.Action.{
-        name: "ping",
-        only_from: None,
-        runner: Internal(Ping),
-        trigger: Command("ping"),
-      },
-      Message.Action.{
-        name: "debug",
-        only_from: None,
-        runner: Internal(Debug),
-        trigger: Command("debug"),
-      },
+      Message.Action.make(
+        "ping",
+        None,
+        Internal(Ping),
+        Command("ping"),
+        (),
+      ),
+      Message.Action.make(
+        "debug",
+        None,
+        Internal(Debug),
+        Command("debug"),
+        (),
+      ),
     ],
   };
 

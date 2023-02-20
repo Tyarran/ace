@@ -40,15 +40,34 @@ module Action = {
     | Command(string)
     | Unknown;
 
-  type origin =
+  type provider =
     | Shell
     | Slack;
 
+  type destination =
+    | Provider(provider)
+    | SameAsOrigin;
+
   type t = {
     name: string,
-    only_from: option(list(origin)),
+    only_from: option(list(provider)),
     runner,
     trigger,
+    destination,
+  };
+
+  let make = (name, only_from, runner, trigger, ~destination=?, ()) => {
+    {
+      name,
+      only_from,
+      runner,
+      trigger,
+      destination:
+        switch (destination) {
+        | Some(destination) => destination
+        | None => SameAsOrigin
+        },
+    };
   };
 };
 
@@ -121,7 +140,7 @@ let is_valid_origin = (input, only_from) => {
   | (_, None) => true
   | (Input.Shell(_message), Some(from)) =>
     from
-    |> List.find(~f=(origin: Action.origin) => {
+    |> List.find(~f=(origin: Action.provider) => {
          switch (origin) {
          | Shell => true
          | _ => false
