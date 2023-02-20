@@ -1,24 +1,18 @@
 open Base;
 open Message;
+open Types;
 
-type list_key_value_response = {
-  intro: option(string),
-  title: option(string),
-  values: list((string, string)),
-};
-
-type debug = {
-  raw: string,
-  input: Message.Input.t,
-  message: Message.t,
-  action: Action.t,
-};
-
-type response =
-  | Bool(bool)
-  | ListKeyValue(list_key_value_response)
-  | Debug(debug);
-
+/* type list_key_value_response = { */
+/*   intro: option(string), */
+/*   title: option(string), */
+/*   values: list((string, string)), */
+/* }; */
+/*  */
+/* type response = */
+/*   | Bool(bool) */
+/*   /* | ListKeyValue(list_key_value_response) */ */
+/*   | Debug(debug); */
+/*  */
 type context = {
   message: Message.t,
   action: Message.Action.t,
@@ -26,7 +20,7 @@ type context = {
 };
 
 let do_ping = _input => {
-  Bool(true);
+  Response.(Ok(Bool(true)));
 };
 
 let process_command = (raw, ctx) => {
@@ -34,7 +28,7 @@ let process_command = (raw, ctx) => {
   switch (Message.process(input)) {
   | Ok(message) =>
     let action = Message.find_action(ctx.config, message);
-    Ok(Debug({raw, message, input, action}));
+    Response.(Ok(Debug({raw, message, input, action})));
   | Error(_) => Error("parsing error")
   };
 };
@@ -56,13 +50,21 @@ let do_help = _input => {
       | Debug => ("debug", "Show debug information of a command")
       }
     });
-  ListKeyValue({intro: None, title: Some("Available commands:"), values});
+  Response.(
+    Ok(
+      UserManualResponse({
+        intro: None,
+        title: Some("Available commands:"),
+        values,
+      }),
+    )
+  );
 };
 
 let build_internal_command_thread = (command, ctx: context) => {
   switch (command) {
-  | Message.Action.Ping => Lwt_result.return(do_ping(ctx))
-  | Message.Action.Help => Lwt_result.return(do_help(ctx))
+  | Message.Action.Ping => Lwt.return(do_ping(ctx))
+  | Message.Action.Help => Lwt.return(do_help(ctx))
   | Message.Action.Debug => Lwt.return(do_debug(ctx))
   };
 };

@@ -83,7 +83,7 @@ module RunAction = {
     >>= (
       action_res => {
         switch (action_res) {
-        | Ok(ListKeyValue(result)) =>
+        | Ok(UserManualResponse(result)) =>
           check(
             string,
             "should be the same",

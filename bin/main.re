@@ -1,6 +1,7 @@
 open Ace;
 open Base;
 open Stdio;
+open Types;
 
 let config =
   Message.Config.{
@@ -43,11 +44,11 @@ let handle_message = raw_message => {
       >>= (
         response => {
           switch (response) {
-          | Ok(Runner.Bool(value)) =>
+          | Ok(Response.Bool(value)) =>
             print_endline("received : " ++ Bool.to_string(value))
-          | Ok(Runner.ListKeyValue(_value)) =>
+          | Response.(Ok(UserManualResponse(_value))) =>
             print_endline("received : command list")
-          | Ok(Runner.Debug(debug)) =>
+          | Response.(Ok(Debug(debug))) =>
             print_endline("received : debug");
             print_endline("command : " ++ debug.raw);
           | Error(_error) => print_endline("Execution error")
