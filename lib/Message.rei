@@ -1,7 +1,9 @@
 open Base;
 
 module Input: {
-  type t;
+  type t =
+    | Shell(string);
+
   let get_raw: t => string;
   let from_shell: string => t;
 };
@@ -24,8 +26,8 @@ module Action: {
     | Unknown;
 
   type provider =
-    | Shell
-    | Slack;
+    | Shell;
+  /* | Slack; */
 
   type destination =
     | Provider(provider)

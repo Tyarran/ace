@@ -18,7 +18,7 @@ module Response = {
   type response_type =
     | UserManualResponse(user_manual_response)
     | Debug(debug)
-    | Bool(bool);
+    | CommandResult(string);
 
-  type t = Result.t(response_type, string);
+  type t = (Result.t(response_type, string), Message.Action.provider);
 };

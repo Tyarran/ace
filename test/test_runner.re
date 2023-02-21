@@ -52,10 +52,10 @@ module RunAction = {
 
     To_test.run(config, message, action)
     >>= (
-      action_res => {
+      ((action_res, _destination)) => {
         switch (action_res) {
-        | Ok(Bool(result)) =>
-          check(bool, "should be true", true, result);
+        | Ok(CommandResult(result)) =>
+          check(string, "should be \"pong\"", "pong", result);
           Lwt.return();
         | _ => failwith("sh;
         ould not be an error")
@@ -81,7 +81,7 @@ module RunAction = {
 
     To_test.run(config, message, action)
     >>= (
-      action_res => {
+      ((action_res, _destination)) => {
         switch (action_res) {
         | Ok(UserManualResponse(result)) =>
           check(

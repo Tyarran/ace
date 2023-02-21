@@ -1,4 +1,0 @@
-(library 
-  (name Ace_web)
-  (public_name ace.web)
-  (libraries cohttp-lwt-unix ace.lib dream))

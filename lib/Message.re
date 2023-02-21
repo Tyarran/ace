@@ -41,8 +41,8 @@ module Action = {
     | Unknown;
 
   type provider =
-    | Shell
-    | Slack;
+    | Shell;
+  /* | Slack; */
 
   type destination =
     | Provider(provider)
@@ -69,6 +69,12 @@ module Action = {
         },
     };
   };
+  /* let get_destination = action => { */
+  /*   switch (action.destination) { */
+  /*   | SameAsOrigin => action.only_from */
+  /*   | Provider(provider) => provider */
+  /*   }; */
+  /* }; */
 };
 
 module Config = {
@@ -143,7 +149,7 @@ let is_valid_origin = (input, only_from) => {
     |> List.find(~f=(origin: Action.provider) => {
          switch (origin) {
          | Shell => true
-         | _ => false
+         /* | _ => false */
          }
        })
     |> Option.is_some

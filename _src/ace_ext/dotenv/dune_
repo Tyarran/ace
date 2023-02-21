@@ -1,4 +1,0 @@
-(library
-  (name Dotenv)
-  (public_name ace.ext.dotenv)
-  (libraries base stdio re2))

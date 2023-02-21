@@ -1,7 +1,6 @@
 open Ace;
 open Base;
 open Stdio;
-open Types;
 
 let config =
   Message.Config.{
@@ -43,16 +42,7 @@ let handle_message = raw_message => {
       |> Runner.run(config, message)
       >>= (
         response => {
-          switch (response) {
-          | Ok(Response.Bool(value)) =>
-            print_endline("received : " ++ Bool.to_string(value))
-          | Response.(Ok(UserManualResponse(_value))) =>
-            print_endline("received : command list")
-          | Response.(Ok(Debug(debug))) =>
-            print_endline("received : debug");
-            print_endline("command : " ++ debug.raw);
-          | Error(_error) => print_endline("Execution error")
-          };
+          print_endline(Widget.render(response));
           Lwt.return_unit;
         }
       )

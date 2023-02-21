@@ -157,30 +157,29 @@ module FindActionTest = {
 
     check(string, "should be the ping action", "help", actual.name);
   };
-
-  let test_find_action_only_slack = () => {
-    let message =
-      Message.{
-        input: Message.Input.from_shell("!ping"),
-        value: Message.Command("ping", []),
-      };
-    let config = {
-      ...config,
-      actions: [
-        Message.Action.make(
-          "ping",
-          Some([Message.Action.Slack]),
-          Internal(Help),
-          Command("ping"),
-          (),
-        ),
-      ],
-    };
-
-    let actual = To_test.find_action(config, message);
-
-    check(string, "should be the ping action", "help", actual.name);
-  };
+  /*   let test_find_action_only_slack = () => { */
+  /*     let message = */
+  /*       Message.{ */
+  /*         input: Message.Input.from_shell("!ping"), */
+  /*         value: Message.Command("ping", []), */
+  /*       }; */
+  /*     let config = { */
+  /*       ...config, */
+  /*       actions: [ */
+  /*         Message.Action.make( */
+  /*           "ping", */
+  /*           Some([Message.Action.Slack]), */
+  /*           Internal(Help), */
+  /*           Command("ping"), */
+  /*           (), */
+  /*         ), */
+  /*       ], */
+  /*     }; */
+  /*  */
+  /*     let actual = To_test.find_action(config, message); */
+  /*  */
+  /*     check(string, "should be the ping action", "help", actual.name); */
+  /*   }; */
 };
 
 let () =
@@ -232,11 +231,11 @@ let () =
             `Quick,
             FindActionTest.test_find_action_default,
           ),
-          test_case(
-            "with only_from filter",
-            `Quick,
-            FindActionTest.test_find_action_only_slack,
-          ),
+          /* test_case( */
+          /*   "with only_from filter", */
+          /*   `Quick, */
+          /*   FindActionTest.test_find_action_only_slack, */
+          /* ), */
         ],
       ),
     ],
