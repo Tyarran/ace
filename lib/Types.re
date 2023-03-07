@@ -16,9 +16,12 @@ module Response = {
   };
 
   type response_type =
-    | UserManualResponse(user_manual_response)
-    | Debug(debug)
-    | CommandResult(string);
+    | UserManualResponse(Result.t(user_manual_response, string))
+    | Debug(Result.t(debug, string))
+    | CommandResult(Result.t(string, string));
 
-  type t = (Result.t(response_type, string), Message.Action.provider);
+  type t = {
+    result: Result.t(response_type, string),
+    destination: Message.Action.provider,
+  };
 };

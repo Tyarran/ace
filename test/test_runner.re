@@ -1,3 +1,4 @@
+open Ace.Types;
 open Alcotest;
 open Base;
 open Lwt.Infix;
@@ -52,13 +53,16 @@ module RunAction = {
 
     To_test.run(config, message, action)
     >>= (
-      ((action_res, _destination)) => {
-        switch (action_res) {
-        | Ok(CommandResult(result)) =>
+      response_res => {
+        switch (response_res) {
+        | Ace.Types.Response.{
+            result: Ok(CommandResult(Ok(result))),
+            destination: _destination,
+          } =>
           check(string, "should be \"pong\"", "pong", result);
           Lwt.return();
         | _ => failwith("sh;
-        ould not be an error")
+                   ould not be an error")
         };
       }
     );
@@ -81,9 +85,12 @@ module RunAction = {
 
     To_test.run(config, message, action)
     >>= (
-      ((action_res, _destination)) => {
-        switch (action_res) {
-        | Ok(UserManualResponse(result)) =>
+      response_res => {
+        switch (response_res) {
+        | Response.{
+            result: Ok(UserManualResponse(Ok(result))),
+            destination: _destination,
+          } =>
           check(
             string,
             "should be the same",

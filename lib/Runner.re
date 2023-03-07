@@ -27,62 +27,51 @@ module Context = {
   };
 };
 
-let do_ping = (ctx: Context.t) => {
-  (Response.(Ok(CommandResult("pong"))), Context.get_destination(ctx));
-};
+let do_ping = (_ctx: Context.t) => Ok("pong");
 
 let process_command = (raw, ctx: Context.t) => {
   let input = Message.Input.from_shell(raw);
   switch (Message.process(input)) {
   | Ok(message) =>
     let action = Message.find_action(ctx.config, message);
-    (
-      Response.(Ok(Debug({raw, message, input, action}))),
-      Context.get_destination(ctx),
-    );
-  | Error(_) => (Error("parsing error"), Context.get_destination(ctx))
+    Ok(Response.{raw, message, input, action});
+  | Error(_) => Error("parsing error")
   };
 };
 
 let do_debug = (ctx: Context.t) => {
   switch (ctx.message.value) {
-  | Message.Command(_name, []) => (
-      Error("No command given"),
-      Context.get_destination(ctx),
-    )
+  | Message.Command(_name, []) => Error("No command given")
   | Message.Command(_name, [raw]) => process_command(raw, ctx)
   | Message.Command(_name, [raw, ..._]) => process_command(raw, ctx)
   };
 };
 
-let do_help = (ctx: Context.t) => {
+let do_help = (_ctx: Context.t) => {
   let values =
     List.map([Action.Ping, Action.Help], ~f=command => {
       switch (command) {
-      | Ping => ("ping", "Ping the bot")
-      | Help => ("help", "Show this help")
-      | Debug => ("debug", "Show debug information of a command")
+      | Action.Ping => ("ping", "Ping the bot")
+      | Action.Help => ("help", "Show this help")
+      | Action.Debug => ("debug", "Show debug information of a command")
       }
     });
-  (
-    Response.(
-      Ok(
-        UserManualResponse({
-          intro: None,
-          title: Some("Available commands:"),
-          values,
-        }),
-      )
-    ),
-    Context.get_destination(ctx),
-  );
+  Ok(Response.{intro: None, title: Some("Available commands:"), values});
 };
 
 let build_internal_command_thread = (command, ctx: Context.t) => {
+  let destination = Context.get_destination(ctx);
   switch (command) {
-  | Message.Action.Ping => Lwt.return(do_ping(ctx))
-  | Message.Action.Help => Lwt.return(do_help(ctx))
-  | Message.Action.Debug => Lwt.return(do_debug(ctx))
+  | Message.Action.Ping =>
+    Lwt.return(
+      Response.{result: Ok(CommandResult(do_ping(ctx))), destination},
+    )
+  | Message.Action.Help =>
+    Lwt.return(
+      Response.{result: Ok(UserManualResponse(do_help(ctx))), destination},
+    )
+  | Message.Action.Debug =>
+    Lwt.return(Response.{result: Ok(Debug(do_debug(ctx))), destination})
   };
 };
 

@@ -69,12 +69,6 @@ module Action = {
         },
     };
   };
-  /* let get_destination = action => { */
-  /*   switch (action.destination) { */
-  /*   | SameAsOrigin => action.only_from */
-  /*   | Provider(provider) => provider */
-  /*   }; */
-  /* }; */
 };
 
 module Config = {
