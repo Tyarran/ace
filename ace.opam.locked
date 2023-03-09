@@ -5,23 +5,23 @@ synopsis: "Ace : Another chatbot engine"
 description: "Ace : Another chatbot engine"
 authors: "Romain Commandé"
 depends: [
-  "alcotest" {= "1.6.0"}
-  "alcotest-lwt" {= "1.6.0"}
-  "astring" {= "0.8.5"}
+  "alcotest" {= "1.7.0" & with-test}
+  "alcotest-lwt" {= "1.7.0" & with-test}
+  "astring" {= "0.8.5" & with-test}
   "base" {= "v0.15.1"}
   "base-bigarray" {= "base"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
-  "cmdliner" {= "1.1.1"}
+  "cmdliner" {= "1.1.1" & with-test}
   "conf-libev" {= "4-12"}
   "cppo" {= "1.6.9"}
   "csexp" {= "1.5.1"}
-  "dune" {= "3.6.2"}
-  "dune-configurator" {= "3.6.2"}
+  "dune" {= "3.7.0"}
+  "dune-configurator" {= "3.7.0"}
   "fix" {= "20220121"}
-  "fmt" {= "0.9.0"}
-  "logs" {= "0.7.0"}
+  "fmt" {= "0.9.0" & with-test}
+  "logs" {= "0.7.0" & with-test}
   "lwt" {= "5.6.1"}
   "menhir" {= "20220210"}
   "menhirLib" {= "20220210"}
@@ -29,21 +29,21 @@ depends: [
   "merlin-extend" {= "0.6.1"}
   "ocaml" {= "4.14.0"}
   "ocaml-config" {= "2"}
-  "ocaml-syntax-shims" {= "1.0.0"}
+  "ocaml-syntax-shims" {= "1.0.0" & with-test}
   "ocaml-system" {= "4.14.0"}
-  "ocamlbuild" {= "0.14.2"}
-  "ocamlfind" {= "1.9.5"}
+  "ocamlbuild" {= "0.14.2" & with-test}
+  "ocamlfind" {= "1.9.6"}
   "ocplib-endian" {= "1.2"}
   "ppx_derivers" {= "1.2.1"}
-  "re" {= "1.10.4"}
+  "re" {= "1.10.4" & with-test}
   "reason" {= "3.8.2"}
   "result" {= "1.5"}
-  "seq" {= "base"}
+  "seq" {= "base" & with-test}
   "sexplib0" {= "v0.15.1"}
   "stdio" {= "v0.15.0"}
-  "stdlib-shims" {= "0.3.0"}
-  "topkg" {= "1.0.7"}
-  "uutf" {= "1.0.3"}
+  "stdlib-shims" {= "0.3.0" & with-test}
+  "topkg" {= "1.0.7" & with-test}
+  "uutf" {= "1.0.3" & with-test}
 ]
 build: [
   ["dune" "subst"] {dev}

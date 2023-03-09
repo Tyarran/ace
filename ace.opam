@@ -10,8 +10,8 @@ depends: [
   "stdio"
   "reason"
   "ocaml"
-  "alcotest"
-  "alcotest-lwt"
+  "alcotest" {with-test}
+  "alcotest-lwt" {with-test}
   "conf-libev"
   "lwt"
   "odoc" {with-doc}
