@@ -10,6 +10,6 @@
  (synopsis "Ace : Another chatbot engine")
  (description "Ace : Another chatbot engine")
  ; (depends ANSITerminal base (cmdliner (= 1.0.4)) cohttp-lwt-unix dream lambda-term lwt re2 reason tls yaml yojson ocaml alcotest))
- (depends base stdio reason ocaml (alcotest :with-test) (alcotest-lwt :with-test) conf-libev lwt))
+ (depends base stdio reason ocaml (alcotest :with-test) (alcotest-lwt :with-test) conf-libev lwt clap))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
