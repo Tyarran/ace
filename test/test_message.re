@@ -1,9 +1,9 @@
-open Ace;
+open Ace_lib;
 open Alcotest;
 
 module To_test = {
-  let process = Ace.Message.process;
-  let find_action = Ace.Message.find_action;
+  let process = Ace_lib.Message.process;
+  let find_action = Ace_lib.Message.find_action;
 };
 
 /* tests */

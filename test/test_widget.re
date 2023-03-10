@@ -1,10 +1,10 @@
-open Ace;
-open Ace.Types;
+open Ace_lib;
+open Ace_lib.Types;
 
 open Alcotest;
 
 module To_test = {
-  let render = Ace.Widget.render;
+  let render = Ace_lib.Widget.render;
 };
 
 module RenderShell = {

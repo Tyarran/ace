@@ -13,6 +13,7 @@ depends: [
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
+  "clap" {= "0.2.0"}
   "cmdliner" {= "1.1.1" & with-test}
   "conf-libev" {= "4-12"}
   "cppo" {= "1.6.9"}

@@ -1,23 +1,23 @@
-open Ace.Types;
+open Ace_lib.Types;
 open Alcotest;
 open Base;
 open Lwt.Infix;
 
 module To_test = {
-  let run = Ace.Runner.run;
+  let run = Ace_lib.Runner.run;
 };
 
 let config =
-  Ace.Message.Config.{
+  Ace_lib.Message.Config.{
     actions: [
-      Ace.Message.Action.make(
+      Ace_lib.Message.Action.make(
         "test action",
         None,
         Internal(Ping),
         Command("ping"),
         (),
       ),
-      Ace.Message.Action.make(
+      Ace_lib.Message.Action.make(
         "test action",
         None,
         Internal(Help),
@@ -26,7 +26,7 @@ let config =
       ),
     ],
     default_action:
-      Ace.Message.Action.make(
+      Ace_lib.Message.Action.make(
         "test action",
         None,
         Internal(Help),
@@ -38,7 +38,7 @@ let config =
 module RunAction = {
   let test_run_ping = (_, ()) => {
     let action =
-      Ace.Message.Action.make(
+      Ace_lib.Message.Action.make(
         "test action",
         None,
         Internal(Ping),
@@ -46,7 +46,7 @@ module RunAction = {
         (),
       );
     let message =
-      Ace.Message.{
+      Ace_lib.Message.{
         value: Command("ping", []),
         input: Input.from_shell("ping"),
       };
@@ -55,7 +55,7 @@ module RunAction = {
     >>= (
       response_res => {
         switch (response_res) {
-        | Ace.Types.Response.{
+        | Ace_lib.Types.Response.{
             result: Ok(CommandResult(Ok(result))),
             destination: _destination,
           } =>
@@ -70,7 +70,7 @@ module RunAction = {
 
   let test_run_help = (_, ()) => {
     let action =
-      Ace.Message.Action.make(
+      Ace_lib.Message.Action.make(
         "test action",
         None,
         Internal(Help),
@@ -78,7 +78,7 @@ module RunAction = {
         (),
       );
     let message =
-      Ace.Message.{
+      Ace_lib.Message.{
         value: Command("help", []),
         input: Input.from_shell("help"),
       };

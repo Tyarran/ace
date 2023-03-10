@@ -1,4 +1,4 @@
 (executable
- (name main)
+ (name ace)
  (public_name ace)
- (libraries ace lwt.unix base stdio))
+ (libraries ace_lib lwt.unix base stdio clap))
