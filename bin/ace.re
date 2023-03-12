@@ -70,8 +70,8 @@ let () = {
   Clap.description("ACE -Another Chatbot Engine- executable.");
   let command =
     Clap.subcommand([
-      Clap.case(~description="Serve a directory.", "server", () => Server),
-      Clap.case(~description="Start the interactive shell", "shell", () =>
+      Clap.case(~description="Start ace server", "start", () => Server),
+      Clap.case(~description="Enter in interactive shell", "shell", () =>
         Shell
       ),
     ]);

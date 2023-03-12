@@ -1,4 +1,4 @@
 (executable
  (name ace)
  (public_name ace)
- (libraries ace_lib lwt.unix base stdio clap))
+ (libraries ace_lib lwt.unix base stdio clap dream))

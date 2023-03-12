@@ -15,6 +15,7 @@ depends: [
   "conf-libev"
   "lwt"
   "clap"
+  "dream"
   "odoc" {with-doc}
 ]
 build: [
