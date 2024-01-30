@@ -98,7 +98,7 @@ module ShellProcessor = {
          | _ => [""]
          }
        })
-    |> Caml.List.flatten
+    |> Stdlib.List.flatten
     |> List.filter(~f=arg => Poly.(arg != ""));
   };
 
